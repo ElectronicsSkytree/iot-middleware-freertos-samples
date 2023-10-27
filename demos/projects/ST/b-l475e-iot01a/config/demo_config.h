@@ -10,7 +10,7 @@
 // SAGAR: This is to allow me to work both at home and office.
 // In actual pilot or test setup, we need to hardcode the Wi-Fi credentials and
 // other necessary stuffs.
-#define HOME_SETUP
+// #define HOME_SETUP
 
 /*
  * This plug-and-play model can be found at:
@@ -259,7 +259,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #ifdef HOME_SETUP
     #define WIFI_SSID                            "TMNL-8D9B4C" // home
 #else
-    // #define WIFI_SSID                            "Skytree" // office
+    #define WIFI_SSID                            "Skytree" // office
 #endif
 
 /**
@@ -270,7 +270,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #ifdef HOME_SETUP
     #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
 #else
-    // #define WIFI_PASSWORD                        "5kytr335t4ff" // office
+    #define WIFI_PASSWORD                        "5kytr335t4ff" // office
 #endif
 
 /**
