@@ -28,6 +28,30 @@
 /* Crypto helper header. */
 #include "azure_sample_crypto.h"
 
+// Overriding the asserts to let IoT connectivity continue.
+// @todo: Before restarting unsubscribing and TLS disconnect might not
+//        need to be done because the assert might be because of
+//        several software reasons (just not TLS/ socket disconnection).
+// @todo: We may not need this in PCBA but it might be good to check
+//        if the TLS issue happens with ethernet too.
+#include "stm32l4xx_hal.h"
+#undef configASSERT
+#define configASSERT( x )                                                    \
+    if( ( x ) == 0 )                                                         \
+    {                                                                        \
+        vLoggingPrintf( "[FATAL] [%s:%d] %s\r\n", __func__, __LINE__, # x ); \
+        NVIC_SystemReset();                                                  \
+    }
+
+// For the real asserts where we dont want a system reset
+#define configASSERTReal( x )                                                    \
+    if( ( x ) == 0 )                                                         \
+    {                                                                        \
+        vLoggingPrintf( "[FATAL] [%s:%d] %s\r\n", __func__, __LINE__, # x ); \
+        taskDISABLE_INTERRUPTS();                                            \
+        for( ; ; ) {; }                                                      \
+    }
+
 /*-----------------------------------------------------------*/
 
 /* Compile time error for undefined configs. */
@@ -102,8 +126,10 @@
 /**
  * @brief Time in ticks to wait between each cycle of the demo implemented
  * by prvMQTTDemoTask().
+ * 
+ * @todo: Time interval is taken 10 seconds for now, to be adjusted more TBD
  */
-#define sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS     ( pdMS_TO_TICKS( 5000U ) )
+#define sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS     ( pdMS_TO_TICKS( 10000U ) )
 
 /**
  * @brief Timeout for MQTT_ProcessLoop in milliseconds.
@@ -117,7 +143,7 @@
  * Note that the process loop also has a timeout, so the total time between
  * publishes is the sum of the two delays.
  */
-#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS           ( pdMS_TO_TICKS( 2000U ) )
+#define sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS           ( pdMS_TO_TICKS( 10000U ) )
 
 /**
  * @brief Transport timeout in milliseconds for transport send and receive.
@@ -305,12 +331,24 @@ static uint32_t prvSetupNetworkCredentials( NetworkCredentials_t * pxNetworkCred
 /**
  * @brief Azure IoT demo task that gets started in the platform specific project.
  *  In this demo task, middleware API's are used to connect to Azure IoT Hub.
+ * 
+ *  Connection:
+ *      - Connect and initialize Azure IoT client
+ *      - Do IoTHub related initialization
+ *      - subscribe to topics/ properties etc
+ *      - Start sending telemetry and try to receive properties in a loop every few seconds
+ *  On Failures:
+ *      - Close/ shutdown wifi, sockets etc
+ *      - Re-initialize all drivers, socket layers etc
+ *      - Re-connect
+ *  @todo handle configAssert --> re-connection/ re-try
+ *        Probably we can continue (try re-connecting) instead of an assert
+ * 
  */
 static void prvAzureDemoTask( void * pvParameters )
 {
     int lPublishCount = 0;
     uint32_t ulScratchBufferLength = 0U;
-    const int lMaxPublishCount = 5;
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
@@ -353,8 +391,12 @@ static void prvAzureDemoTask( void * pvParameters )
     #endif /* democonfigENABLE_DPS_SAMPLE */
 
     xNetworkContext.pParams = &xTlsTransportParams;
-
-    for( ; ; )
+    
+    /**
+     * Initiate connection to IoTHub
+     * @todo: We will have an initiate_connection() type of functionality
+     *        to re-start (re-connect) the backoff algorithm.
+    */
     {
         if( xAzureSample_IsConnectedToInternet() )
         {
@@ -409,10 +451,20 @@ static void prvAzureDemoTask( void * pvParameters )
 
             xResult = AzureIoTHubClient_SubscribeCloudToDeviceMessage( &xAzureIoTHubClient, prvHandleCloudMessage,
                                                                        &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+
+            // Added for debugging, to be removed later
+            if (xResult != eAzureIoTSuccess) {
+                LogInfo( ( "AzureIoTHubClient_SubscribeCloudToDeviceMessage failed with xResult = %d.\r\n", xResult ) );
+            }
+
             configASSERT( xResult == eAzureIoTSuccess );
 
             xResult = AzureIoTHubClient_SubscribeCommand( &xAzureIoTHubClient, prvHandleCommand,
                                                           &xAzureIoTHubClient, sampleazureiotSUBSCRIBE_TIMEOUT );
+            // Added for debugging, to be removed later
+            if (xResult != eAzureIoTSuccess) {
+                LogInfo( ( "AzureIoTHubClient_SubscribeCommand failed with xResult = %d.\r\n", xResult ) );
+            }
             configASSERT( xResult == eAzureIoTSuccess );
 
             xResult = AzureIoTHubClient_SubscribeProperties( &xAzureIoTHubClient, prvHandlePropertiesMessage,
@@ -443,11 +495,17 @@ static void prvAzureDemoTask( void * pvParameters )
             xResult = AzureIoTMessage_PropertiesAppend( &xPropertyBag, ( uint8_t * ) "name", sizeof( "name" ) - 1,
                                                         ( uint8_t * ) "value", sizeof( "value" ) - 1 );
             configASSERT( xResult == eAzureIoTSuccess );
+        }
+    }   // Endof connection initialization
 
-            /* Publish messages with QoS1, send and process Keep alive messages. */
-            for( lPublishCount = 0;
-                 lPublishCount < lMaxPublishCount && xAzureSample_IsConnectedToInternet();
-                 lPublishCount++ )
+
+    /**
+     * Try sending telemetry and properties
+    */
+   {
+        if( xAzureSample_IsConnectedToInternet() )
+        {
+            for ( ; ; )
             {
                 ulScratchBufferLength = snprintf( ( char * ) ucScratchBuffer, sizeof( ucScratchBuffer ),
                                                   sampleazureiotMESSAGE, lPublishCount );
@@ -461,6 +519,10 @@ static void prvAzureDemoTask( void * pvParameters )
                                                          sampleazureiotPROCESS_LOOP_TIMEOUT_MS );
                 configASSERT( xResult == eAzureIoTSuccess );
 
+                // Keep the same logic and send properties (alternatively)
+                // @todo: Maybe we can skip and not send properties for pilots
+                //               as we are not using properties for pilots/ test.
+                lPublishCount++;
                 if( lPublishCount % 2 == 0 )
                 {
                     /* Send reported property every other cycle */
@@ -473,40 +535,37 @@ static void prvAzureDemoTask( void * pvParameters )
                 }
 
                 /* Leave Connection Idle for some time. */
-                LogInfo( ( "Keeping Connection Idle...\r\n\r\n" ) );
+                LogInfo( ( "Keeping Connection Idle for %d seconds\r\n\r\n", sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS / 1000 ) );
                 vTaskDelay( sampleazureiotDELAY_BETWEEN_PUBLISHES_TICKS );
             }
-
-            if( xAzureSample_IsConnectedToInternet() )
-            {
-                xResult = AzureIoTHubClient_UnsubscribeProperties( &xAzureIoTHubClient );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTHubClient_UnsubscribeCommand( &xAzureIoTHubClient );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                xResult = AzureIoTHubClient_UnsubscribeCloudToDeviceMessage( &xAzureIoTHubClient );
-                configASSERT( xResult == eAzureIoTSuccess );
-
-                /* Send an MQTT Disconnect packet over the already connected TLS over
-                 * TCP connection. There is no corresponding response for the disconnect
-                 * packet. After sending disconnect, client must close the network
-                 * connection. */
-                xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
-                configASSERT( xResult == eAzureIoTSuccess );
-            }
-
-            /* Close the network connection.  */
-            TLS_Socket_Disconnect( &xNetworkContext );
-
-            /* Wait for some time between two iterations to ensure that we do not
-             * bombard the IoT Hub. */
-            LogInfo( ( "Demo completed successfully.\r\n" ) );
         }
+   }
 
-        LogInfo( ( "Short delay before starting the next iteration.... \r\n\r\n" ) );
-        vTaskDelay( sampleazureiotDELAY_BETWEEN_DEMO_ITERATIONS_TICKS );
+    /**
+     * @todo Handle closure outside so that we can work on re-connection upon failure.
+     * For now leaving it here as is. In fact it should never reavch here.
+    */
+    if( xAzureSample_IsConnectedToInternet() )
+    {
+        xResult = AzureIoTHubClient_UnsubscribeProperties( &xAzureIoTHubClient );
+        configASSERTReal( xResult == eAzureIoTSuccess );
+
+        xResult = AzureIoTHubClient_UnsubscribeCommand( &xAzureIoTHubClient );
+        configASSERTReal( xResult == eAzureIoTSuccess );
+
+        xResult = AzureIoTHubClient_UnsubscribeCloudToDeviceMessage( &xAzureIoTHubClient );
+        configASSERTReal( xResult == eAzureIoTSuccess );
+
+        /* Send an MQTT Disconnect packet over the already connected TLS over
+            * TCP connection. There is no corresponding response for the disconnect
+            * packet. After sending disconnect, client must close the network
+            * connection. */
+        xResult = AzureIoTHubClient_Disconnect( &xAzureIoTHubClient );
+        configASSERTReal( xResult == eAzureIoTSuccess );
     }
+
+    /* Close the network connection.  */
+    TLS_Socket_Disconnect( &xNetworkContext );
 }
 /*-----------------------------------------------------------*/
 
