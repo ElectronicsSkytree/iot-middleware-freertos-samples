@@ -142,6 +142,7 @@ int main( void )
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
+    configPRINTF( ( "---------STARTING Scheduler---------\r\n" ) );
     vTaskStartScheduler();
 
     return 0;

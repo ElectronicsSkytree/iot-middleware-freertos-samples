@@ -10,7 +10,7 @@
 // SAGAR: This is to allow me to work both at home and office.
 // In actual pilot or test setup, we need to hardcode the Wi-Fi credentials and
 // other necessary stuffs.
-// #define HOME_SETUP
+#define HOME_SETUP
 
 /*
  * This plug-and-play model can be found at:
