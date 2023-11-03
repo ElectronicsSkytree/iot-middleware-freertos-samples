@@ -843,7 +843,7 @@ static void prvAzureDemoTask( void * pvParameters )
     // strncpy(error_state, "no-error", strlen("no-error"));
 
     uint32_t ulScratchBufferLength = 0U;
-    const int lMaxPublishCount = 5;
+    const int lMaxPublishCount = 15;
     NetworkCredentials_t xNetworkCredentials = { 0 };
     AzureIoTTransportInterface_t xTransport;
     NetworkContext_t xNetworkContext = { 0 };
