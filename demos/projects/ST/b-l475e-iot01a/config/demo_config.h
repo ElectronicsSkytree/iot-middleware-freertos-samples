@@ -12,9 +12,12 @@
 // #define HOME_SETUP 1
 // #define OFC_SETUP 1
 // #define WUR_SETUP 1
-#define GROWY_SETUP 1
+// #define GROWY_SETUP 1
 // #define FIELDLESS_SETUP 1
 
+// Alten based devices
+// #define HOME_Alten_Setup 1
+#define GROWY_Alten 1
 
 /*
  * This plug-and-play model can be found at:
@@ -87,7 +90,11 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @note This is the DPS ID Scope we have in Skytree Azure backend
  * 
  */
+#if defined(HOME_Alten_Setup) || defined(GROWY_Alten)
+    #define democonfigID_SCOPE           "0ne00BF2AFD"
+#else
     #define democonfigID_SCOPE           "0ne00AFD579"
+#endif
 
 /**
  * @brief Registration Id of provisioning service
@@ -111,6 +118,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #elif defined(FIELDLESS_SETUP)
         // #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless_temp" // Fieldless
         #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless" // Fieldless
+    #elif defined(GROWY_Alten)
+        #define democonfigREGISTRATION_ID    "skytree_growy_with_alten" // Growy testing with Alten
+    #elif defined(HOME_Alten_Setup)
+        #define democonfigREGISTRATION_ID    "sagar_home_setup" // Growy testing with Alten
     #endif    
 
 #endif /* democonfigENABLE_DPS_SAMPLE */
@@ -150,6 +161,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #elif defined(FIELDLESS_SETUP)
     // #define democonfigDEVICE_SYMMETRIC_KEY    "AjYZM9V1UViZMknEUWDtAV5tjnAqxoOafrk9qE+uLuFan9HNfGowhFkjN3Q9AmLc79LLPKynkHr0k6M1zoCDNg==" // Fieldless
     #define democonfigDEVICE_SYMMETRIC_KEY    "Mi3+4/7x2tPkSin3m42/2EHDTWbvYrPRqUHIJRKhgtlvoy3XnerG+bORK0VW1mbe51EiRK9kEdRBWjZU+POgMw==" // Fieldless
+#elif defined(GROWY_Alten)
+    #define democonfigDEVICE_SYMMETRIC_KEY "hqJEvY1bC93mIksjXPR4kdnx0jx/Yv5h/JsxzDBICKMniegZI07f+aiIuz/Ol49LwFxvCTiOdGKpUJKN6A2XWw=="
+#elif defined(HOME_Alten_Setup)
+    #define democonfigDEVICE_SYMMETRIC_KEY    "7NUSqTk96iUnPQ83tEJ7YTQDyFB20e09hUMuaFUf5be332g/LKnzStK4PfcyGwk1m4VqjTte2/QQWfjFORmLLA==" // Home Alten
 #endif
 /**
  * @brief Client's X509 Certificate.
@@ -272,7 +287,6 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Wifi SSID
  *
  */
-// SAGAR: This is to allow me to work both at home and office.
 #ifdef HOME_SETUP
     #define WIFI_SSID                            "TMNL-8D9B4C" // home
 #elif defined(OFC_SETUP)
@@ -284,13 +298,16 @@ extern void vLoggingPrintf( const char * pcFormatString,
     // #define WIFI_SSID                            "TMNL-8D9B4C" // home
 #elif defined(FIELDLESS_SETUP)
     #define WIFI_SSID                            "Fieldless Farms Systems" // Fieldless location
+#elif defined(GROWY_Alten)
+    #define WIFI_SSID                            "Skytree" // office
+#elif defined(HOME_Alten_Setup)
+    #define WIFI_SSID                            "TMNL-8D9B4C" // home
 #endif
 
 /**
  * @brief Wifi Password
  *
  */
-// SAGAR: This is to allow me to work both at home and office.
 #ifdef HOME_SETUP
     #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
 #elif defined(OFC_SETUP)
@@ -302,6 +319,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
     // #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
 #elif defined(FIELDLESS_SETUP)
     #define WIFI_PASSWORD                        "779j4Cy@%R" // home
+#elif defined(GROWY_Alten)
+    #define WIFI_PASSWORD                        "5kytr335t4ff" // office
+#elif defined(HOME_Alten_Setup)
+    #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
 #endif
 
 /**
