@@ -11,8 +11,8 @@
 // other necessary stuffs.
 // #define HOME_SETUP 1
 // #define OFC_SETUP 1
-#define WUR_SETUP 1
-// #define GROWY_SETUP 1
+// #define WUR_SETUP 1
+#define GROWY_SETUP 1
 // #define FIELDLESS_SETUP 1
 
 

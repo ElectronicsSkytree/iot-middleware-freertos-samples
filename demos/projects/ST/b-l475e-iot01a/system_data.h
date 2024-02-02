@@ -19,9 +19,9 @@
 //Defines
 #define CRC_POLYNOMIAL 0x42
 #define MESSAGE_LENGTH_UNIT_STATUS 62 //UNIT_status 57 bytes + header 4 bytes + crc 1 byte = 62 bytes
-#define MESSAGE_LENGTH_SKID_STATUS 37 //SKID_status 32 bytes + header 4 bytes + crc 1 byte = 37 bytes
+#define MESSAGE_LENGTH_SKID_STATUS 41 //SKID_status 36 bytes + header 4 bytes + crc 1 byte = 41 bytes
 #define MESSAGE_LENGTH_IOT_COMMAND 6 //IOT_COMMAND header 5 bytes + crc 1 byte = 6 bytes
-#define NUMBER_OF_HEATERS 9
+#define NUMBER_OF_HEATERS 9 // Its an continuous array for now
 
 #if 0
 // Structures in controllino for reference
@@ -50,7 +50,7 @@ typedef struct{
     int32_t temperature;
     uint32_t humidity;
     uint32_t errors;
-}SKID_status; //32 bytes
+}SKID_status; //36 bytes
 #endif
 
 typedef struct{
