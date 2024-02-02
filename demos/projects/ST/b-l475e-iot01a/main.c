@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -272,6 +273,31 @@ static BaseType_t prvInitializeWifi( void )
 }
 /*-----------------------------------------------------------*/
 
+void setLocalTimestamp(uint32_t localTimeSeconds) {
+    RTC_TimeTypeDef sTime;
+    RTC_DateTypeDef sDate;
+
+    // Convert local timestamp to struct tm
+    // @todo localtime still gives gmt time
+    time_t timestamp = (time_t)localTimeSeconds;
+    struct tm *timeInfo = localtime(&timestamp);
+
+    // Set the time structure
+    sTime.Hours = timeInfo->tm_hour;
+    sTime.Minutes = timeInfo->tm_min;
+    sTime.Seconds = timeInfo->tm_sec;
+
+    // Set the date structure
+    sDate.Year = timeInfo->tm_year; // tm_year is the year since 1900
+    sDate.Month = timeInfo->tm_mon + 1; // tm_mon is 0-based (0 for January)
+    sDate.Date = timeInfo->tm_mday;
+
+    // Set the RTC with the obtained time and date
+    HAL_RTC_SetTime(&xHrtc, &sTime, RTC_FORMAT_BIN);
+    HAL_RTC_SetDate(&xHrtc, &sDate, RTC_FORMAT_BIN);
+}
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvInitializeSNTP( void )
 {
     BaseType_t ret = 0;
@@ -298,6 +324,9 @@ static BaseType_t prvInitializeSNTP( void )
     {
         configPRINTF( ( "> ES-WIFI Time Initialized: %lu\r\n",
                         unixTime ) );
+
+        // set the time, just do it again
+        setLocalTimestamp(unixTime);
     }
 
     return ret;
