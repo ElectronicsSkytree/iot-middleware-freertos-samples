@@ -287,6 +287,9 @@ uint64_t ullGetUnixTime( void );
 static uint8_t ucPropertyBuffer[ 80 ];
 static uint8_t ucScratchBuffer[ SCRATCH_BUFFER_LENGTH ];
 
+const char* cLockCommand = "Lock";
+const char* cUnlockCommand = "Unock";
+
 /* Each compilation unit must define the NetworkContext struct. */
 struct NetworkContext
 {
@@ -361,6 +364,16 @@ static void prvHandleCloudMessage( AzureIoTHubClientCloudToDeviceMessageRequest_
     LogInfo( ( "Cloud message payload : %.*s \r\n",
                ( int ) pxMessage->ulPayloadLength,
                ( const char * ) pxMessage->pvMessagePayload ) );
+    
+    // @todo We will have Direct Method implemented for Lock/Unlock soon.
+    //       This solution is done to meet the pilot devices need
+    // Options: "Lock", "Unlock"
+    if(strncmp(( const char * ) pxMessage->pvMessagePayload, cLockCommand, strlen(cLockCommand))  == 0){
+        send_lock_status();
+    }
+    else if(strncmp(( const char * ) pxMessage->pvMessagePayload, cUnlockCommand, strlen(cUnlockCommand) == 0)){
+        send_unlock_status();
+    }
 }
 /*-----------------------------------------------------------*/
 
