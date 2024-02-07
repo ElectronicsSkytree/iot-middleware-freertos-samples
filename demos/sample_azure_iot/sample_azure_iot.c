@@ -153,13 +153,13 @@
 #define sampleazureiotTELEMETRY_AVG                               ( "avg" )
 #define sampleazureiotTELEMETRY_MAX                               ( "max" )
 #define sampleazureiotTELEMETRY_MIN                               ( "min" )
-// components status
-#define sampleazureiotTELEMETRY_TWO_WAY_GAS_VALVE_BEFORE_WATER_TRAP             ( "two_way_gas_valve_before_water_trap" )
+// components status    
+#define sampleazureiotTELEMETRY_TWO_WAY_GAS_VALVE_BEFORE_WATER_TRAP             ( "V46_waterTrap_in" )
 #define sampleazureiotTELEMETRY_TWO_WAY_GAS_VALVE_IN_WATER_TRAP                 ( "two_way_gas_valve_in_water_trap" )
-#define sampleazureiotTELEMETRY_TWO_WAY_GAS_VALVE_AFTER_WATER_TRAP              ( "two_way_gas_valve_after_water_trap" )
-#define sampleazureiotTELEMETRY_VACUUM_RELEASE_VALVE_IN_WATER_TRAP              ( "vacuum_release_valve_in_water_trap" )
-#define sampleazureiotTELEMETRY_THREE_WAY_VACUUM_RELEASE_VALVE_BEFORE_CONDENSER ( "three_way_vacuum_release_valve_before_condenser" )
-#define sampleazureiotTELEMETRY_THREE_WAY_VALVE_AFTER_VACUUM_PUMP               ( "three_way_valve_after_vacuum_pump" )
+#define sampleazureiotTELEMETRY_TWO_WAY_GAS_VALVE_AFTER_WATER_TRAP              ( "V44_waterTrap_out" )
+#define sampleazureiotTELEMETRY_VACUUM_RELEASE_VALVE_IN_WATER_TRAP              ( "V45_vacuumRelease_waterTrap" )
+#define sampleazureiotTELEMETRY_THREE_WAY_VACUUM_RELEASE_VALVE_BEFORE_CONDENSER ( "V41_3way_before_condenser" )
+#define sampleazureiotTELEMETRY_THREE_WAY_VALVE_AFTER_VACUUM_PUMP               ( "V40_3way_after_vacuumPump" )
 #define sampleazureiotTELEMETRY_COMPRESSOR                                      ( "compressor" )
 #define sampleazureiotTELEMETRY_VACUUM_PUMP                                     ( "vacuum_pump" )
 #define sampleazureiotTELEMETRY_CONDENSER                                       ( "condenser" )
@@ -468,12 +468,12 @@ uint32_t prvCreateSkidComponentStatusTelemetry( SKID_iot_status_t skid_data, uin
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_THREE_WAY_VACUUM_RELEASE_VALVE_BEFORE_CONDENSER, lengthof( sampleazureiotTELEMETRY_THREE_WAY_VACUUM_RELEASE_VALVE_BEFORE_CONDENSER ),
-                                                                ( uint8_t * )three_way_vacuum_release_valve_before_condensator_stringified[skid_data.three_way_vacuum_release_valve_before_condenser],
-                                                                strlen(three_way_vacuum_release_valve_before_condensator_stringified[skid_data.three_way_vacuum_release_valve_before_condenser]));
+                                                                ( uint8_t * )three_way_stringified[skid_data.three_way_vacuum_release_valve_before_condenser],
+                                                                strlen(three_way_stringified[skid_data.three_way_vacuum_release_valve_before_condenser]));
     configASSERT( xResult == eAzureIoTSuccess );
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_THREE_WAY_VALVE_AFTER_VACUUM_PUMP, lengthof( sampleazureiotTELEMETRY_THREE_WAY_VALVE_AFTER_VACUUM_PUMP ),
-                                                                ( uint8_t * )three_way_valve_after_vacuum_pump_stringified[skid_data.three_valve_after_vacuum_pump],
-                                                                strlen(three_way_valve_after_vacuum_pump_stringified[skid_data.three_valve_after_vacuum_pump]));
+                                                                ( uint8_t * )three_way_stringified[skid_data.three_valve_after_vacuum_pump],
+                                                                strlen(three_way_stringified[skid_data.three_valve_after_vacuum_pump]));
     configASSERT( xResult == eAzureIoTSuccess )
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_COMPRESSOR, lengthof( sampleazureiotTELEMETRY_COMPRESSOR ),

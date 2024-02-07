@@ -102,14 +102,9 @@ const char* valve_status_stringified[] = {
     "OPENED"         // 1
 };
 
-const char* three_way_vacuum_release_valve_before_condensator_stringified[] = {
-    "three_way_vacuum_release_valve_before_condensator_to_TANK",        // 0
-    "three_way_vacuum_release_valve_before_condensator_to_AIR"          // 1
-};
-
-const char* three_way_valve_after_vacuum_pump_stringified[] = {
-    "three_way_valve_after_vacuum_pump_to_TANK",        // 0
-    "three_way_valve_after_vacuum_pump_to_AIR"          // 1
+const char* three_way_stringified[] = {
+    "to_Tank",        // 0
+    "to_Air"          // 1
 };
 
 const char* component_status_stringified[] = {
