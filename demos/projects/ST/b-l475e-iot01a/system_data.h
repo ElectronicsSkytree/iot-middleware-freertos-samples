@@ -136,7 +136,8 @@ typedef enum{
     Desorb_State = 4,
     Vacuum_Release_State = 5,
     Lock_State = 6,
-    Desorb_Setup_State = 7
+    Desorb_Setup_State = 7,
+    Safe_State = 8
 }sequence_state_t;
 
 const char* sequence_state_stringified[] = {
@@ -148,6 +149,7 @@ const char* sequence_state_stringified[] = {
     "Vacuum_Release_State",  // 5
     "Lock_State",            // 6
     "Desorb_Setup_State"     // 7
+    "Safe_State"             // 8
 };
 
 typedef enum{
