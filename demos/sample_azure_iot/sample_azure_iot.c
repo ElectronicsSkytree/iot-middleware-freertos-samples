@@ -100,7 +100,6 @@
  * @brief The Telemetry message published in this example.
  */
 // #define sampleazureiotMESSAGE                                 "Hello World : %d !"
-// #define sampleazureiotMESSAGE                                 "{\"temperature\":%f,\"humidity\":%f,\"co2\":%f}"
 
 /**
  * @brief Telemetry Values
@@ -108,15 +107,12 @@
 // Primary objects
 #define sampleazureiotTELEMETRY_OBJECT_SKID                       ( "skid" )
 #define sampleazureiotTELEMETRY_OBJECT_UNITS                      ( "units" )
-// #define sampleazureiotTELEMETRY_OBJECT_EXTERNAL                   ( "environment" )
-// #define sampleazureiotTELEMETRY_OBJECT_STATE                      ( "state" )
-// #define sampleazureiotTELEMETRY_OBJECT_ERROR_STATE                ( "error-state" )
 
 // Secondary
 #define sampleazureiotTELEMETRY_OBJECT_UNIT1                      ( "unit1" )
 #define sampleazureiotTELEMETRY_OBJECT_UNIT2                      ( "unit2" )
 #define sampleazureiotTELEMETRY_OBJECT_UNIT3                      ( "unit3" )
-// #define sampleazureiotTELEMETRY_OBJECT_PRESSURE                   ( "pressure" )
+
 // sensor objects
 #define sampleazureiotTELEMETRY_OBJECT_O2                         ( "o2" )
 #define sampleazureiotTELEMETRY_OBJECT_MASSFLOW                   ( "mass_flow" )
@@ -147,6 +143,10 @@
 #define sampleazureiotTELEMETRY_OBJECT_VALVE_STATUS               ( "valve_status" )
 
 // Telemetry
+#define sampleazureiotTELEMETRY_SKID_ALERT                        ( "skid_alert" )
+#define sampleazureiotTELEMETRY_UNIT_ALERT                        ( "unit_alert" )
+#define sampleazureiotTELEMETRY_SKID_ERROR_CODE                   ( "skid_error_code" )
+#define sampleazureiotTELEMETRY_UNIT_ERROR_CODE                   ( "unit_error_code" )
 #define sampleazureiotTELEMETRY_SKID_STATE                        ( "skid_state" )
 #define sampleazureiotTELEMETRY_UNIT_STATE                        ( "unit_state" )
 #define sampleazureiotTELEMETRY_STATUS                            ( "status" )
@@ -173,31 +173,6 @@
 #define sampleazureiotTELEMETRY_FAN_STATUS                                      ( "fan_status" )
 #define sampleazureiotTELEMETRY_BUTTERFLY_VALVE_1_STATUS                        ( "butterfly_valve_1_status" )
 #define sampleazureiotTELEMETRY_BUTTERFLY_VALVE_2_STATUS                        ( "butterfly_valve_2_status" )
-
-// #define sampleazureiotTELEMETRY_PRESSURE1                         ( "pressure1" )
-// #define sampleazureiotTELEMETRY_PRESSURE2                         ( "pressure2" )
-// #define sampleazureiotTELEMETRY_PRESSURE3                         ( "pressure3" )
-// #define sampleazureiotTELEMETRY_MASS_FLOW                         ( "massflow" )
-// #define sampleazureiotTELEMETRY_CO2                               ( "co2" )
-// #define sampleazureiotTELEMETRY_O2                                ( "o2" )
-// #define sampleazureiotTELEMETRY_TEMPERATURE                       ( "ambient_temperature" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE11                       ( "cartridge11" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE12                       ( "cartridge12" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE13                       ( "cartridge13" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE21                       ( "cartridge21" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE22                       ( "cartridge22" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE23                       ( "cartridge23" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE31                       ( "cartridge31" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE32                       ( "cartridge32" )
-// #define sampleazureiotTELEMETRY_CARTRIDGE33                       ( "cartridge33" )
-// #define sampleazureiotTELEMETRY_VACUUM                            ( "vacuum" )
-// #define sampleazureiotTELEMETRY_VIBRATION                         ( "vibration" )
-// #define sampleazureiotTELEMETRY_HUMIDITY                          ( "ambient_humidity" )
-// #define sampleazureiotTELEMETRY_TANK_PRESSURE                     ( "tank_pressure" )
-// #define sampleazureiotTELEMETRY_PWM_DUTY_CYCLE                    ( "pwm_duty_cycle" )
-
-// #define sampleazureiotTELEMETRY_STATUS                     ( "status" )
-// #define sampleazureiotTELEMETRY_ERROR_STATUS               ( "errorstatus" )
 
 // For getting the length of the telemetry names
 #define lengthof( x )                  ( sizeof( x ) - 1 )
@@ -295,6 +270,10 @@ struct NetworkContext
 
 static AzureIoTHubClient_t xAzureIoTHubClient;
 /*-----------------------------------------------------------*/
+
+// Alert related
+sequence_state_t xSkidLastState;
+sequence_state_t xUnitLastState;
 
 #ifdef democonfigENABLE_DPS_SAMPLE
 
@@ -468,12 +447,12 @@ uint32_t prvCreateSkidComponentStatusTelemetry( SKID_iot_status_t skid_data, uin
     configASSERT( xResult == eAzureIoTSuccess );
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_THREE_WAY_VACUUM_RELEASE_VALVE_BEFORE_CONDENSER, lengthof( sampleazureiotTELEMETRY_THREE_WAY_VACUUM_RELEASE_VALVE_BEFORE_CONDENSER ),
-                                                                ( uint8_t * )three_way_vacuum_release_valve_before_condensator_stringified[skid_data.three_way_vacuum_release_valve_before_condenser],
-                                                                strlen(three_way_vacuum_release_valve_before_condensator_stringified[skid_data.three_way_vacuum_release_valve_before_condenser]));
+                                                                ( uint8_t * )three_way_valve_stringified[skid_data.three_way_vacuum_release_valve_before_condenser],
+                                                                strlen(three_way_valve_stringified[skid_data.three_way_vacuum_release_valve_before_condenser]));
     configASSERT( xResult == eAzureIoTSuccess );
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_THREE_WAY_VALVE_AFTER_VACUUM_PUMP, lengthof( sampleazureiotTELEMETRY_THREE_WAY_VALVE_AFTER_VACUUM_PUMP ),
-                                                                ( uint8_t * )three_way_valve_after_vacuum_pump_stringified[skid_data.three_valve_after_vacuum_pump],
-                                                                strlen(three_way_valve_after_vacuum_pump_stringified[skid_data.three_valve_after_vacuum_pump]));
+                                                                ( uint8_t * )three_way_valve_stringified[skid_data.three_valve_after_vacuum_pump],
+                                                                strlen(three_way_valve_stringified[skid_data.three_valve_after_vacuum_pump]));
     configASSERT( xResult == eAzureIoTSuccess )
 
     xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_COMPRESSOR, lengthof( sampleazureiotTELEMETRY_COMPRESSOR ),
@@ -834,11 +813,24 @@ uint32_t prvCreateSkidTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemetr
     configASSERT( xResult == eAzureIoTSuccess );
 
     // Read the current sensor data
-    SKID_iot_status_t skid_data = get_skid_status();
+    SKID_iot_status_t skid_data = get_skid_status(xSkidLastState);
+    xSkidLastState = skid_data.skid_state;
+
     // Other non-nested stuff
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_SKID_STATE, lengthof( sampleazureiotTELEMETRY_SKID_STATE ),
-                                                                ( uint8_t * )sequence_state_stringified[skid_data.skid_state], strlen(sequence_state_stringified[skid_data.skid_state]));
-    configASSERT( xResult == eAzureIoTSuccess );
+    {
+        xResult = AzureIoTJSONWriter_AppendPropertyWithBoolValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_SKID_ALERT, lengthof( sampleazureiotTELEMETRY_SKID_ALERT ), skid_data.send_alert);
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        char error_code_stringified[60] = {0};
+        stringifyErrorCode(error_code_stringified, skid_data.errors);
+        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_SKID_ERROR_CODE, lengthof( sampleazureiotTELEMETRY_SKID_ERROR_CODE ),
+                                                                    ( uint8_t * )error_code_stringified, strlen(error_code_stringified));
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_SKID_STATE, lengthof( sampleazureiotTELEMETRY_SKID_STATE ),
+                                                                    ( uint8_t * )sequence_state_stringified[skid_data.skid_state], strlen(sequence_state_stringified[skid_data.skid_state]));
+        configASSERT( xResult == eAzureIoTSuccess );
+    }
 
     // Nested sensors
     // o2
@@ -989,11 +981,25 @@ uint32_t prvCreateUnit1Telemetry( uint8_t * pucTelemetryData, uint32_t ulTelemet
     configASSERT( xResult == eAzureIoTSuccess );
 
     // Read the current sensor data
-    UNIT_iot_status_t unit_data = get_unit_status();
+    UNIT_iot_status_t unit_data = get_unit_status(xUnitLastState);
+    xUnitLastState = unit_data.unit_state;
+
     // Other non-nested stuff
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_UNIT_STATE, lengthof( sampleazureiotTELEMETRY_UNIT_STATE ),
-                                                                ( uint8_t * )sequence_state_stringified[unit_data.unit_state], strlen(sequence_state_stringified[unit_data.unit_state]));
-    configASSERT( xResult == eAzureIoTSuccess );
+    {
+        xResult = AzureIoTJSONWriter_AppendPropertyWithBoolValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_UNIT_ALERT, lengthof( sampleazureiotTELEMETRY_UNIT_ALERT ), unit_data.send_alert);
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        char error_code_stringified[60] = {0};
+        stringifyErrorCode(error_code_stringified, unit_data.errors);
+
+        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_UNIT_ERROR_CODE, lengthof( sampleazureiotTELEMETRY_UNIT_ERROR_CODE ),
+                                                                    ( uint8_t * )error_code_stringified, strlen(error_code_stringified));
+        configASSERT( xResult == eAzureIoTSuccess );
+
+        xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_UNIT_STATE, lengthof( sampleazureiotTELEMETRY_UNIT_STATE ),
+                                                                    ( uint8_t * )sequence_state_stringified[unit_data.unit_state], strlen(sequence_state_stringified[unit_data.unit_state]));
+        configASSERT( xResult == eAzureIoTSuccess );
+    }
 
     // heaters
     {
@@ -1232,28 +1238,6 @@ uint32_t prvCreateTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemetryDat
         configASSERT( xResult == eAzureIoTSuccess );
     }
     // Endof Units
-
-    #if 0 // External
-    {
-        xResult = AzureIoTJSONWriter_AppendPropertyName( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_OBJECT_EXTERNAL, lengthof( sampleazureiotTELEMETRY_OBJECT_EXTERNAL ) );
-        configASSERT( xResult == eAzureIoTSuccess );
-
-        // All external sensors
-        memset(ucScratchTempHalfBuffer, '\0', sizeof(ucScratchTempHalfBuffer));
-        lBytesWritten = prvCreateExternalTelemetry(ucScratchTempHalfBuffer, sizeof(ucScratchTempHalfBuffer) );
-
-        xResult = AzureIoTJSONWriter_AppendJSONText( &xWriter, ucScratchTempHalfBuffer, lBytesWritten );
-        configASSERT( xResult == eAzureIoTSuccess );
-    }
-    // Endof External
-
-    // @todo: Remove this and have nested stuff!!!
-    // Temp Status
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_STATUS, lengthof( sampleazureiotTELEMETRY_STATUS ), "Running", 7 );
-    configASSERT( xResult == eAzureIoTSuccess );
-    xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_ERROR_STATUS, lengthof( sampleazureiotTELEMETRY_ERROR_STATUS ), "No Error", 8 );
-    configASSERT( xResult == eAzureIoTSuccess );
-    #endif // Endof Temp status
 
     // End top object
     xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
