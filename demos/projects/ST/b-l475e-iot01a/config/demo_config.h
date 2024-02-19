@@ -39,7 +39,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "AzureIoTDemo"
+    #define LIBRARY_LOG_NAME    "AzureIoT"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
@@ -109,6 +109,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #elif defined(GROWY_SETUP)
         #define democonfigREGISTRATION_ID    "skytree_iotkit_growy" // Growy
     #elif defined(FIELDLESS_SETUP)
+        // #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless_temp" // Fieldless
         #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless" // Fieldless
     #endif    
 
@@ -147,6 +148,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #elif defined(GROWY_SETUP)
     #define democonfigDEVICE_SYMMETRIC_KEY    "IZSNRvTXMzvXRjvB345XEYJF7Q1S9wM1QpgWQ45NE605OrKvA3bNHRAr4ygYGQmlixAEsHfcFyQ0VFdxhY3Byw==" // Growy
 #elif defined(FIELDLESS_SETUP)
+    // #define democonfigDEVICE_SYMMETRIC_KEY    "AjYZM9V1UViZMknEUWDtAV5tjnAqxoOafrk9qE+uLuFan9HNfGowhFkjN3Q9AmLc79LLPKynkHr0k6M1zoCDNg==" // Fieldless
     #define democonfigDEVICE_SYMMETRIC_KEY    "Mi3+4/7x2tPkSin3m42/2EHDTWbvYrPRqUHIJRKhgtlvoy3XnerG+bORK0VW1mbe51EiRK9kEdRBWjZU+POgMw==" // Fieldless
 #endif
 /**

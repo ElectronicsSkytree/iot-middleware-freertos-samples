@@ -359,7 +359,7 @@ void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, double* av
   *avg = total / NUMBER_OF_SAMPLES;
 }
 
-SKID_iot_status_t get_skid_status(void){
+SKID_iot_status_t get_skid_status(sequence_state_t last_skid_state){
   static SKID_iot_status_t tmp;
 
   xSemaphoreTake(skid_status_rw_mutex, MUTEX_MAX_BLOCKING_TIME);
@@ -371,6 +371,13 @@ SKID_iot_status_t get_skid_status(void){
   tmp.reset_flag = (skid_status[index].skid_status & 0x04) ? FLAG_SET:FLAG_UNSET;
   
   tmp.skid_state = skid_status[index].skid_state;
+
+  // Hack - Check if alert should be sent or not
+  tmp.send_alert = false;
+  if((tmp.skid_state == Lock_State && last_skid_state != Lock_State)
+     || (tmp.skid_state == Safe_State && last_skid_state != Safe_State)) {
+    tmp.send_alert = true;
+  }
 
   tmp.two_way_gas_valve_before_water_trap = (skid_status[index].outputs_status & 0x0001) ? ONE:ZERO;
   tmp.two_way_gas_valve_in_water_trap = (skid_status[index].outputs_status & 0x0002) ? ONE:ZERO;
@@ -391,12 +398,14 @@ SKID_iot_status_t get_skid_status(void){
   sensor_average_max_min(SKID_TEMPERATURE, 0, &tmp.temperature.avg, &tmp.temperature.max, &tmp.temperature.min);
   sensor_average_max_min(SKID_HUMIDITY, 0, &tmp.humidity.avg, &tmp.humidity.max, &tmp.humidity.min);
 
+  tmp.errors = skid_status[index].errors;
+
   xSemaphoreGive(skid_status_rw_mutex);
 
   return tmp;
 }
 
-UNIT_iot_status_t get_unit_status(void){
+UNIT_iot_status_t get_unit_status(sequence_state_t last_unit_state){
   static UNIT_iot_status_t tmp;
 
   xSemaphoreTake(unit_status_rw_mutex, MUTEX_MAX_BLOCKING_TIME);
@@ -410,6 +419,13 @@ UNIT_iot_status_t get_unit_status(void){
   tmp.setup_state_synching_flag = (unit_status[index].unit_status & 0x10) ? FLAG_SET:FLAG_UNSET;
 
   tmp.unit_state = unit_status[index].unit_state;
+
+  // Hack - Check if alert should be sent or not
+  tmp.send_alert = false;
+  if((tmp.unit_state == Lock_State && last_unit_state != Lock_State)
+     || (tmp.unit_state == Safe_State && last_unit_state != Safe_State)) {
+    tmp.send_alert = true;
+  }
 
   for(uint8_t i=0;i<NUMBER_OF_HEATERS;++i){
     tmp.heater_info[i].status = (unit_status[index].heater_status & (1 << i)) ? ONE:ZERO;
@@ -425,6 +441,8 @@ UNIT_iot_status_t get_unit_status(void){
   sensor_average_max_min(UNIT_VACUUM_SENSOR, 0, &tmp.vacuum_sensor.avg, &tmp.vacuum_sensor.max, &tmp.vacuum_sensor.min);
   sensor_average_max_min(UNIT_AMBIENT_HUMIDITY, 0, &tmp.ambient_humidity.avg, &tmp.ambient_humidity.max, &tmp.ambient_humidity.min);
   sensor_average_max_min(UNIT_AMBIENT_TEMPERATURE, 0, &tmp.ambient_temperature.avg, &tmp.ambient_temperature.max, &tmp.ambient_temperature.min);
+
+  tmp.errors = unit_status[index].errors;
 
   xSemaphoreGive(unit_status_rw_mutex);
 
