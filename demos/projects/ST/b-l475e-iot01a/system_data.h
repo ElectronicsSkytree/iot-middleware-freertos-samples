@@ -15,14 +15,13 @@
 //Includes
 #include "gui_comm_api.h"
 #include <stdio.h>
-#include <stdbool.h>
 
 //Defines
 #define CRC_POLYNOMIAL 0x42
 #define MESSAGE_LENGTH_UNIT_STATUS 62 //UNIT_status 57 bytes + header 4 bytes + crc 1 byte = 62 bytes
 #define MESSAGE_LENGTH_SKID_STATUS 41 //SKID_status 36 bytes + header 4 bytes + crc 1 byte = 41 bytes
 #define MESSAGE_LENGTH_IOT_COMMAND 6 //IOT_COMMAND header 5 bytes + crc 1 byte = 6 bytes
-#define NUMBER_OF_HEATERS 9 // Its a continuous array for now
+#define NUMBER_OF_HEATERS 9 // Its an continuous array for now
 
 #if 0
 // Structures in controllino for reference
@@ -103,9 +102,14 @@ const char* valve_status_stringified[] = {
     "OPENED"         // 1
 };
 
-const char* three_way_valve_stringified[] = {
-    "to_Tank",        // 0
-    "to_Air"          // 1
+const char* three_way_vacuum_release_valve_before_condensator_stringified[] = {
+    "three_way_vacuum_release_valve_before_condensator_to_TANK",        // 0
+    "three_way_vacuum_release_valve_before_condensator_to_AIR"          // 1
+};
+
+const char* three_way_valve_after_vacuum_pump_stringified[] = {
+    "three_way_valve_after_vacuum_pump_to_TANK",        // 0
+    "three_way_valve_after_vacuum_pump_to_AIR"          // 1
 };
 
 const char* component_status_stringified[] = {
@@ -133,21 +137,19 @@ typedef enum{
     Vacuum_Release_State = 5,
     Lock_State = 6,
     Desorb_Setup_State = 7,
-    Safe_State = 8,
-    Unlock_State = 9
+    Safe_State = 8
 }sequence_state_t;
 
 const char* sequence_state_stringified[] = {
-    "Error_Handling",         // 0
-    "Init_State",             // 1
-    "Adsorb_State",           // 2
-    "Evacuation_State",       // 3
-    "Desorb_State",           // 4
-    "Vacuum_Release_State",   // 5
-    "Lock_State",             // 6
-    "Desorb_Setup_State",     // 7
-    "Safe_State",             // 8
-    "Unlock_State"            // 9
+    "Error_Handling",        // 0
+    "Init_State",            // 1
+    "Adsorb_State",          // 2
+    "Evacuation_State",      // 3
+    "Desorb_State",          // 4
+    "Vacuum_Release_State",  // 5
+    "Lock_State",            // 6
+    "Desorb_Setup_State"     // 7
+    "Safe_State"             // 8
 };
 
 typedef enum{
@@ -210,8 +212,7 @@ typedef struct{
     sensor_info_t vacuum_sensor;
     sensor_info_t ambient_humidity;
     sensor_info_t ambient_temperature;
-    bool send_alert;
-    uint32_t errors;
+    // uint32_t errors;    // @todo
 }UNIT_iot_status_t;
 
 typedef struct{
@@ -246,101 +247,8 @@ typedef struct{
     sensor_info_t proportional_valve_pressure;
     sensor_info_t temperature;
     sensor_info_t humidity;
-    bool send_alert;
-    uint32_t errors;
+    // uint32_t errors;    // @todo
 }SKID_iot_status_t;
-
-#if 0   // For reference from Controllino code
-// Unit error codes
-enum ErrorCodes
-{
-    NO_ERROR = 0,
-    /* Errors 1 - 99 reserved for unit errors*/
-    /* Errors 1 - 19 reserved for heater over temperature */
-    /* Errors 11 - 29 reserved for heater under heating / disconnection */
-    VACUUM_SENSOR_FAULT                                 = 90               // Sensor disconnected
-};
-
-// SKID error codes
-enum ErrorCodes
-{
-    NO_ERROR = 0,
-    /* Errors 1 - 99 reserved for unit errors*/
-    TANK_PRESSURE_SENSOR_FAULT                          = 100,              // Sensor disconnected
-    TANK_PRESSURE_SENSOR_OUT_OF_BOUNDARY                = 101,              // Sensor value out of bound
-    TANK_PRESSURE_FAULT                                 = 102,              // Pressure is not what expected
-    /* 100 - 105 reserved for Tank Pressure Sensor errors */
-    PROPORTIONAL_VALVE_PRESSURE_SENSOR_FAULT            = 106,              // Proportional valve sensor is disconnected
-    PROPORTIONAL_VALVE_PRESSURE_OUT_OF_BOUNDARY         = 107,              // Proportional valve pressure value is out of bound
-    PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_1        = 108,              // Proportional valve pressure above 1.1 bar for more than 15 consecutive seconds
-    PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_2        = 109,              // Proportional valve pressure above 1.5 bar for more than 2 consecutive seconds
-    /* 106 - 110 reserved for Proportional Valve Pressure errors */
-    VACUUM_CHAMBER_SENSOR_TIMEOUT_ERROR                 = 111,              // Vacuum sensor didn't reach 20 mBar before timeout
-    /* 10000 - 20000 reserved for warnings*/
-    WARNING_MASS_FLOW_SENSOR_FAULT                      = 10001,            // Mass flow sensor is disconnected or I2C has problem
-    WARNING_O2_SENSOR_FAULT                             = 10002,            // O2 sensor is disconnected or I2C has problem
-    WARNING_CO2_SENSOR_FAULT                            = 10003,            // CO2 sensor is disconnected
-};
-#endif
-
-typedef enum{
-    NO_ERROR = 0,
-    /* Unit errors: Errors 1 - 99 reserved for unit errors*/
-    VACUUM_SENSOR_FAULT                                 = 90,               // Sensor disconnected
-    /* Skid errors */
-    TANK_PRESSURE_SENSOR_FAULT                          = 100,              // Sensor disconnected
-    TANK_PRESSURE_SENSOR_OUT_OF_BOUNDARY                = 101,              // Sensor value out of bound
-    TANK_PRESSURE_FAULT                                 = 102,              // Pressure is not what expected
-    /* 100 - 105 reserved for Tank Pressure Sensor errors */
-    PROPORTIONAL_VALVE_PRESSURE_SENSOR_FAULT            = 106,              // Proportional valve sensor is disconnected
-    PROPORTIONAL_VALVE_PRESSURE_OUT_OF_BOUNDARY         = 107,              // Proportional valve pressure value is out of bound
-    PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_1        = 108,              // Proportional valve pressure above 1.1 bar for more than 15 consecutive seconds
-    PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_2        = 109,              // Proportional valve pressure above 1.5 bar for more than 2 consecutive seconds
-    /* 106 - 110 reserved for Proportional Valve Pressure errors */
-    VACUUM_CHAMBER_SENSOR_TIMEOUT_ERROR                 = 111,              // Vacuum sensor didn't reach 20 mBar before timeout
-    /* 10000 - 20000 reserved for warnings*/
-    WARNING_MASS_FLOW_SENSOR_FAULT                      = 10001,            // Mass flow sensor is disconnected or I2C has problem
-    WARNING_O2_SENSOR_FAULT                             = 10002,            // O2 sensor is disconnected or I2C has problem
-    WARNING_CO2_SENSOR_FAULT                            = 10003,            // CO2 sensor is disconnected
-}ErrorCodes_t;
-
-void stringifyErrorCode(char* error_stringified, ErrorCodes_t code) {
-    switch (code){
-        case NO_ERROR:            
-            sprintf(error_stringified, "%s", "NO_ERROR");
-            break;
-        case VACUUM_SENSOR_FAULT:
-            sprintf(error_stringified, "%s", "VACUUM_SENSOR_FAULT");
-            break;
-        case TANK_PRESSURE_SENSOR_FAULT:
-            sprintf(error_stringified, "%s", "TANK_PRESSURE_SENSOR_FAULT");
-            break;
-        case TANK_PRESSURE_SENSOR_OUT_OF_BOUNDARY:
-            sprintf(error_stringified, "%s", "TANK_PRESSURE_SENSOR_OUT_OF_BOUNDARY");
-            break;
-        case TANK_PRESSURE_FAULT:
-            sprintf(error_stringified, "%s", "TANK_PRESSURE_FAULT");
-            break;
-        case PROPORTIONAL_VALVE_PRESSURE_SENSOR_FAULT:
-            sprintf(error_stringified, "%s", "PROPORTIONAL_VALVE_PRESSURE_SENSOR_FAULT");
-            break;
-        case PROPORTIONAL_VALVE_PRESSURE_OUT_OF_BOUNDARY:
-            sprintf(error_stringified, "%s", "PROPORTIONAL_VALVE_PRESSURE_OUT_OF_BOUNDARY");
-            break;
-        case PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_1:
-            sprintf(error_stringified, "%s", "PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_1");
-            break;
-        case PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_2:
-            sprintf(error_stringified, "%s", "PROPORTIONAL_VALVE_PRESSURE_CRITICAL_STATE_2");
-            break;
-        case VACUUM_CHAMBER_SENSOR_TIMEOUT_ERROR:
-            sprintf(error_stringified, "%s", "VACUUM_CHAMBER_SENSOR_TIMEOUT_ERROR");
-            break;
-        default:
-            sprintf(error_stringified, "%s%d", "UNKNOWN_CODE: ", code);
-            break;
-    }
-}
 
 //Functions
 void system_data_init(void);
@@ -348,8 +256,8 @@ void read_incoming_system_data(void);
 void send_lock_status(void);
 void send_unlock_status(void);
 
-UNIT_iot_status_t get_unit_status(sequence_state_t last_unit_state);
-SKID_iot_status_t get_skid_status(sequence_state_t last_skid_state);
+UNIT_iot_status_t get_unit_status(void);
+SKID_iot_status_t get_skid_status(void);
 
 #ifdef __cplusplus
 }
