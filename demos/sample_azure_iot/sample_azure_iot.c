@@ -257,8 +257,8 @@ uint64_t ullGetUnixTime( void );
     static AzureIoTProvisioningClient_t xAzureIoTProvisioningClient;
 #endif /* democonfigENABLE_DPS_SAMPLE */
 
-#define SCRATCH_BUFFER_LENGTH 2048
-#define MINI_SCRATCH_BUFFER_LENGTH 1572
+#define SCRATCH_BUFFER_LENGTH 3200
+#define MINI_SCRATCH_BUFFER_LENGTH 2048
 static uint8_t ucPropertyBuffer[ 80 ];
 static uint8_t ucScratchBuffer[ SCRATCH_BUFFER_LENGTH ];
 
@@ -989,7 +989,7 @@ uint32_t prvCreateUnit1Telemetry( uint8_t * pucTelemetryData, uint32_t ulTelemet
         xResult = AzureIoTJSONWriter_AppendPropertyWithBoolValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_UNIT_ALERT, lengthof( sampleazureiotTELEMETRY_UNIT_ALERT ), unit_data.send_alert);
         configASSERT( xResult == eAzureIoTSuccess );
 
-        char error_code_stringified[30] = {0};
+        char error_code_stringified[60] = {0};
         stringifyErrorCode(error_code_stringified, unit_data.errors);
 
         xResult = AzureIoTJSONWriter_AppendPropertyWithStringValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_UNIT_ERROR_CODE, lengthof( sampleazureiotTELEMETRY_UNIT_ERROR_CODE ),
@@ -1149,48 +1149,10 @@ uint32_t prvCreateUnitsTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemet
         return 0;
     }
 
-    // LogInfo( ( "Units data %.*s\r\n", lBytesWritten, pucTelemetryData ) );
+    LogInfo( ( "Units data length = %d \n data = %.*s\r\n", lBytesWritten, pucTelemetryData ) );
 
     return ( uint32_t ) lBytesWritten;
 }
-
-#if 0
-uint32_t prvCreateExternalTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemetryDataLength )
-{
-    AzureIoTResult_t xResult;
-    AzureIoTJSONWriter_t xWriter;
-    int32_t lBytesWritten;
-
-    xResult = AzureIoTJSONWriter_Init( &xWriter, pucTelemetryData, ulTelemetryDataLength );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    // Begin top object
-    xResult = AzureIoTJSONWriter_AppendBeginObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    // @todo-REVISIT - For now just hardcoding the stuff for simulation
-    temperature_ext += 0.5;
-
-    xResult = AzureIoTJSONWriter_AppendPropertyWithDoubleValue( &xWriter, ( uint8_t * ) sampleazureiotTELEMETRY_TEMPERATURE, lengthof( sampleazureiotTELEMETRY_TEMPERATURE ), temperature_ext, 3 );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    // End top object
-    xResult = AzureIoTJSONWriter_AppendEndObject( &xWriter );
-    configASSERT( xResult == eAzureIoTSuccess );
-
-    lBytesWritten = AzureIoTJSONWriter_GetBytesUsed( &xWriter );
-
-    if( lBytesWritten < 0 )
-    {
-        LogError( ( "Error getting the bytes written for the telemetry JSON" ) );
-        return 0;
-    }
-
-    // LogInfo( ( "External data %.*s\r\n", lBytesWritten, pucTelemetryData ) );
-
-    return ( uint32_t ) lBytesWritten;
-}
-#endif
 
 /**
  * @brief Create and fill the telemetry data.
@@ -1264,12 +1226,6 @@ uint32_t prvCreateTelemetry( uint8_t * pucTelemetryData, uint32_t ulTelemetryDat
 static void prvAzureDemoTask( void * pvParameters )
 {
     int lPublishCount = 0;
-
-    // Skytree specific
-    // int error_state_count = 0;
-    // char error_state[30];
-    // memset(error_state, '\0', sizeof(error_state));
-    // strncpy(error_state, "no-error", strlen("no-error"));
 
     uint32_t ulScratchBufferLength = 0U;
     const int lMaxPublishCount = 15;
