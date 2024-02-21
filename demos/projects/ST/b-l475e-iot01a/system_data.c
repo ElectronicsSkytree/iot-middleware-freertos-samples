@@ -12,6 +12,7 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 
 //========================================================================================================== DEFINITIONS AND MACROS
 #define MUTEX_MAX_BLOCKING_TIME 1000
@@ -352,18 +353,47 @@ double get_median(double sensor_samples[]){
   }
 }
 
+void update_sensor_total(sensor_name_t name, double sensor_value, double* total, uint8_t* number_of_valid_samples)
+{
+    if( (name == SKID_O2 && (sensor_value < 0 || sensor_value > 100)) ||
+        (name == SKID_MASS_FLOW && (sensor_value > 60)) ||
+        (name == SKID_CO2 && (sensor_value < 0 || sensor_value > 1)) ||
+        (name == SKID_PROPOTIONAL_VALVE_SENSOR && (sensor_value < 0 || sensor_value > 3)) ||
+        (name == SKID_TEMPERATURE && (sensor_value < -20 || sensor_value > 120)) ||
+        (name == SKID_HUMIDITY && (sensor_value < 0 || sensor_value > 100)) ||
+        (name == UNIT_VACUUM_SENSOR && (sensor_value < 0 || sensor_value > 1.2)) ||
+        (name == UNIT_AMBIENT_HUMIDITY && (sensor_value < 0 || sensor_value > 100)) ||
+        (name == UNIT_AMBIENT_TEMPERATURE && (sensor_value < -20 || sensor_value > 120)) ||
+        (name == UNIT_HEATER && (sensor_value < 0 || sensor_value > 150)) ||
+        (name == TANK_PRESSURE && (sensor_value < 0 || sensor_value > 6)) )
+    {
+      double integer_part = 0;
+      modf(sensor_value, &integer_part);
+      configPRINTF( ( "Invalid sensor (%d) value integer-part (%d)\r\n" , name, (int32_t)integer_part) );
+    }
+    else {
+      *total += sensor_value;
+      *number_of_valid_samples += 1;
+    }
+}
+
 void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sensor_info_t* sensor_info){
   double total = 0.0;
   double sensor_samples[NUMBER_OF_SAMPLES];
-  total = sensor_samples[0] = sensor_info->stats.avg = sensor_info->stats.max
-    = sensor_info->stats.min = sensor_info->stats.median = get_sensor_value(0, name, heater_index);
+  double sensor_value = 0.0;
+  uint8_t number_of_valid_samples = 0;
+
+  sensor_samples[0] = sensor_info->stats.avg = sensor_info->stats.max
+    = sensor_info->stats.min = sensor_info->stats.median = sensor_value = get_sensor_value(0, name, heater_index);
+  update_sensor_total(name, sensor_value, &total, &number_of_valid_samples);
+
   // uint8_t num_of_valid_samples = 0;
 
   for(uint8_t i=1;i<NUMBER_OF_SAMPLES;++i){
-    double sensor_value = sensor_samples[i] = get_sensor_value(i, name, heater_index);
+    sensor_value = sensor_samples[i] = get_sensor_value(i, name, heater_index);
 
     // if(sensor_value != __DBL_MAX__){
-      total += sensor_value;
+      update_sensor_total(name, sensor_value, &total, &number_of_valid_samples);
 
       if(sensor_value > sensor_info->stats.max){
         sensor_info->stats.max = sensor_value;
@@ -380,7 +410,10 @@ void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sensor_inf
   sensor_info->stats.median = get_median(sensor_samples);
 
   // get avg
-  sensor_info->stats.avg = total / NUMBER_OF_SAMPLES;
+  if(number_of_valid_samples != 0)
+  {
+    sensor_info->stats.avg = total / (double)number_of_valid_samples;
+  }
 }
 
 SKID_iot_status_t get_skid_status(sequence_state_t last_skid_state){

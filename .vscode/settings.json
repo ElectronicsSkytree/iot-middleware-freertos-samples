@@ -2,6 +2,8 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "cmake.generator": "Ninja",
     "files.associations": {
-        "limits": "c"
+        "limits": "c",
+        "main.h": "c",
+        "cmath": "c"
     }
 }
