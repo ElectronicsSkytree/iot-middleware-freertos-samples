@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stdio.h"
 #include "stm32l4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -84,9 +85,19 @@ void HardFault_Handler(void)
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
+  BSP_LED_Off(LED1);
+  BSP_LED_On(LED_GREEN);
+
+  printf("HardFault_Handler\r\n");
+
   while (1)
   {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+    /* USER CODE BEGIN W1_HardFault_IRQn 0 */    
+    BSP_LED_Toggle(LED1);
+    volatile uint32_t count = 0;
+    for(; count < 250000; ++count) {
+      // do nothing
+    }
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }
@@ -98,10 +109,20 @@ void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
 
+  BSP_LED_On(LED1);
+  BSP_LED_Off(LED_GREEN);
+
+  printf("MemManage_Handler\r\n");
+
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
+    BSP_LED_Toggle(LED_GREEN);
+    volatile uint32_t count = 0;
+    for(; count < 250000; ++count) {
+      // do nothing
+    }
     /* USER CODE END W1_MemoryManagement_IRQn 0 */
   }
 }
@@ -112,11 +133,20 @@ void MemManage_Handler(void)
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
+  BSP_LED_Off(LED1);
+  BSP_LED_On(LED_GREEN);
+
+  printf("BusFault_Handler\r\n");
 
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_BusFault_IRQn 0 */
+    BSP_LED_Toggle(LED1);
+    volatile uint32_t count = 0;
+    for(; count < 1000000; ++count) {
+      // do nothing
+    }
     /* USER CODE END W1_BusFault_IRQn 0 */
   }
 }
@@ -127,11 +157,20 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
+  BSP_LED_On(LED1);
+  BSP_LED_Off(LED_GREEN);
+
+  printf("UsageFault_Handler\r\n");
 
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
+    BSP_LED_Toggle(LED_GREEN);
+    volatile uint32_t count = 0;
+    for(; count < 1000000; ++count) {
+      // do nothing
+    }
     /* USER CODE END W1_UsageFault_IRQn 0 */
   }
 }

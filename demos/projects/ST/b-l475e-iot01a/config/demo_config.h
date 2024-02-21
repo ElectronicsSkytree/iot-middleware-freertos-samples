@@ -90,7 +90,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @note This is the DPS ID Scope we have in Skytree Azure backend
  * 
  */
-#if defined(HOME_Alten_Setup) || defined(GROWY_Alten)
+#if defined(HOME_Alten_Setup) || defined(GROWY_Alten) || defined(FIELDLESS_SETUP)
     #define democonfigID_SCOPE           "0ne00BF2AFD"
 #else
     #define democonfigID_SCOPE           "0ne00AFD579"
@@ -116,8 +116,8 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #elif defined(GROWY_SETUP)
         #define democonfigREGISTRATION_ID    "skytree_iotkit_growy" // Growy
     #elif defined(FIELDLESS_SETUP)
-        // #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless_temp" // Fieldless
-        #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless" // Fieldless
+        // #define democonfigREGISTRATION_ID    "skytree_iotkit_fieldless" // Fieldless
+        #define democonfigREGISTRATION_ID    "skytree_iot_fieldless_pilot" // Fieldless
     #elif defined(GROWY_Alten)
         #define democonfigREGISTRATION_ID    "skytree_growy_with_alten" // Growy testing with Alten
     #elif defined(HOME_Alten_Setup)
@@ -159,8 +159,8 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #elif defined(GROWY_SETUP)
     #define democonfigDEVICE_SYMMETRIC_KEY    "IZSNRvTXMzvXRjvB345XEYJF7Q1S9wM1QpgWQ45NE605OrKvA3bNHRAr4ygYGQmlixAEsHfcFyQ0VFdxhY3Byw==" // Growy
 #elif defined(FIELDLESS_SETUP)
-    // #define democonfigDEVICE_SYMMETRIC_KEY    "AjYZM9V1UViZMknEUWDtAV5tjnAqxoOafrk9qE+uLuFan9HNfGowhFkjN3Q9AmLc79LLPKynkHr0k6M1zoCDNg==" // Fieldless
-    #define democonfigDEVICE_SYMMETRIC_KEY    "Mi3+4/7x2tPkSin3m42/2EHDTWbvYrPRqUHIJRKhgtlvoy3XnerG+bORK0VW1mbe51EiRK9kEdRBWjZU+POgMw==" // Fieldless
+    // #define democonfigDEVICE_SYMMETRIC_KEY    "Mi3+4/7x2tPkSin3m42/2EHDTWbvYrPRqUHIJRKhgtlvoy3XnerG+bORK0VW1mbe51EiRK9kEdRBWjZU+POgMw==" // Fieldless
+    #define democonfigDEVICE_SYMMETRIC_KEY    "lCz8fl+XuEy/higmXJIMuPn1mTY9Ultv99Le+UrcfkE1oBFz9HaEHpMqw9+LOFC95AGyBVHLocb9LNwZXoeyzg==" // Fieldless Alten
 #elif defined(GROWY_Alten)
     #define democonfigDEVICE_SYMMETRIC_KEY "hqJEvY1bC93mIksjXPR4kdnx0jx/Yv5h/JsxzDBICKMniegZI07f+aiIuz/Ol49LwFxvCTiOdGKpUJKN6A2XWw=="
 #elif defined(HOME_Alten_Setup)
@@ -318,7 +318,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
     #define WIFI_PASSWORD                        "5kytr335t4ff" // office
     // #define WIFI_PASSWORD                        "XYXMNAELRS65BH8A" // home
 #elif defined(FIELDLESS_SETUP)
-    #define WIFI_PASSWORD                        "779j4Cy@%R" // home
+    #define WIFI_PASSWORD                        "779j4Cy@%R"
 #elif defined(GROWY_Alten)
     #define WIFI_PASSWORD                        "5kytr335t4ff" // office
 #elif defined(HOME_Alten_Setup)
