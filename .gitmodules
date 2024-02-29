@@ -1,3 +1,7 @@
 [submodule "libs/azure-iot-middleware-freertos"]
 	path = libs/azure-iot-middleware-freertos
 	url = https://github.com/Azure/azure-iot-middleware-freertos.git
+
+[submodule "src/common/iot_communication"]
+	path = src/common/iot_communication
+	url = https://github.com/ElectronicsSkytree/iot_communication.git
