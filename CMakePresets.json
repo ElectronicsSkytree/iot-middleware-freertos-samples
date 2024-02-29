@@ -9,7 +9,7 @@
         {
             "name": "b-l475e-iot01a",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/b-l475e-iot01a",
+            "binaryDir": "${sourceDir}/b-l475e-iot01a/Debug",
             "cacheVariables": {
                 "VENDOR": "ST",
                 "BOARD": "b-l475e-iot01a"
