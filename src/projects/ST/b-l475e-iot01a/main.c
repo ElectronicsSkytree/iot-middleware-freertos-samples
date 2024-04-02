@@ -28,10 +28,10 @@ xSemaphoreHandle xWifiSemaphoreHandle;
 EventGroupHandle_t xConnectionEventGroup;
 
 /* Prototypes. */
-extern void vIoTBackendConnectionTask( void );
-extern void vIoTTelemetryTask( void );
-extern void vIoTCloudMessageTask( void );
 extern void vControllerCommunicationTask( void );
+// extern void vIoTBackendConnectionTask( void );
+// extern void vIoTTelemetryTask( void );
+// extern void vIoTCloudMessageTask( void );
 
 /**
  * @brief Application hook.
@@ -77,15 +77,15 @@ static void prvMiscInitialization( void )
      * MEGA. Doing before WiFi so that we can start receiving data immediately. */
     vControllerCommunicationTask();
 
-    if( InitializeWifi() != 0 )
-    {
-        Error_Handler(__func__, __LINE__);
-    }
+    // if( InitializeWifi() != 0 )
+    // {
+    //     Error_Handler(__func__, __LINE__);
+    // }
 
-    if( InitializeSNTP() != 0 )
-    {
-        Error_Handler(__func__, __LINE__);
-    }
+    // if( InitializeSNTP() != 0 )
+    // {
+    //     Error_Handler(__func__, __LINE__);
+    // }
 }
 /*-----------------------------------------------------------*/
 
@@ -127,13 +127,13 @@ void vApplicationDaemonTaskStartupHook( void )
     /* This is already started in main().*/
 
     /* 2. IoT backend connection task */
-    vIoTBackendConnectionTask();
+    // vIoTBackendConnectionTask();
 
     /* 3. IoT subscription and direct method task */
-    vIoTCloudMessageTask();
+    // vIoTCloudMessageTask();
 
     /* 4. IoT telemetry task */
-    vIoTTelemetryTask();
+    // vIoTTelemetryTask();
 }
 /*-----------------------------------------------------------*/
 
