@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -116,7 +117,7 @@ static void prvInitializeHeap( void );
     static BaseType_t prvInitializeWifi( void );
     /*-----------------------------------------------------------*/
 
-    static BaseType_t prvInitializeSNTP( void );
+    long prvInitializeSNTP( void );
     /*-----------------------------------------------------------*/
 #endif
 
@@ -149,6 +150,9 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
+
+    /*@todo */
+    BSP_LED_Toggle( LED1 );
     
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
@@ -272,7 +276,48 @@ static BaseType_t prvInitializeWifi( void )
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvInitializeSNTP( void )
+void setLocalTimestamp(uint32_t localTimeSeconds) {
+    RTC_TimeTypeDef sTime;
+    RTC_DateTypeDef sDate;
+
+    // Convert local timestamp to struct tm
+    // @todo localtime still gives gmt time
+    time_t timestamp = (time_t)localTimeSeconds;
+    struct tm *timeInfo = localtime(&timestamp);
+
+    // Set the time structure
+    sTime.Hours = timeInfo->tm_hour;
+    sTime.Minutes = timeInfo->tm_min;
+    sTime.Seconds = timeInfo->tm_sec;
+
+    // Set the date structure
+    sDate.Year = timeInfo->tm_year - 100; // tm_year is the year since 1900 but we need to set since 2000
+    sDate.Month = timeInfo->tm_mon + 1; // tm_mon is 0-based (0 for January)
+    sDate.Date = timeInfo->tm_mday;
+
+    configPRINTF( ( "> ES-WIFI set time: year(%d) month(%d) date(%d)\r\n", sDate.Year, sDate.Month, sDate.Date ) );
+
+    // Set the RTC with the obtained time and date
+    HAL_RTC_SetTime(&xHrtc, &sTime, RTC_FORMAT_BIN);
+    HAL_RTC_SetDate(&xHrtc, &sDate, RTC_FORMAT_BIN);
+}
+/*-----------------------------------------------------------*/
+
+// @todo: Fix this better way in new code
+void Reset_Hour( RTC_TimeTypeDef sTime, RTC_DateTypeDef sDate )
+{
+    // Reset the hour to 0
+    sTime.Hours = 0;
+
+    // Update the weekday (assuming Sunday is 0 and Saturday is 6)
+    sDate.WeekDay = (sDate.WeekDay + 1) % 7;
+
+    // Update the RTC time and date with the new hour and weekday
+    HAL_RTC_SetTime(&xHrtc, &sTime, RTC_FORMAT_BIN);
+    HAL_RTC_SetDate(&xHrtc, &sDate, RTC_FORMAT_BIN);
+}
+
+BaseType_t prvInitializeSNTP( void )
 {
     BaseType_t ret = 0;
     uint32_t unixTime = 0;
@@ -298,6 +343,9 @@ static BaseType_t prvInitializeSNTP( void )
     {
         configPRINTF( ( "> ES-WIFI Time Initialized: %lu\r\n",
                         unixTime ) );
+
+        // Set the time as we got the utc seconds
+        setLocalTimestamp(unixTime);
     }
 
     return ret;
@@ -422,6 +470,7 @@ static void prvMiscInitialization( void )
     prvInitializeHeap();
 
     BSP_LED_Init( LED_GREEN );
+    BSP_LED_Init( LED1 );
     BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
 
     /* RNG init function. */
@@ -592,9 +641,6 @@ static void Console_UART_Init( void )
  */
 static void RTC_Init( void )
 {
-    RTC_TimeTypeDef xsTime;
-    RTC_DateTypeDef xsDate;
-
     /* Initialize RTC Only. */
     xHrtc.Instance = RTC;
     xHrtc.Init.HourFormat = RTC_HOURFORMAT_24;
@@ -606,28 +652,6 @@ static void RTC_Init( void )
     xHrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
 
     if( HAL_RTC_Init( &xHrtc ) != HAL_OK )
-    {
-        Error_Handler();
-    }
-
-    /* Initialize RTC and set the Time and Date. */
-    xsTime.Hours = 0x12;
-    xsTime.Minutes = 0x0;
-    xsTime.Seconds = 0x0;
-    xsTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    xsTime.StoreOperation = RTC_STOREOPERATION_RESET;
-
-    if( HAL_RTC_SetTime( &xHrtc, &xsTime, RTC_FORMAT_BCD ) != HAL_OK )
-    {
-        Error_Handler();
-    }
-
-    xsDate.WeekDay = RTC_WEEKDAY_FRIDAY;
-    xsDate.Month = RTC_MONTH_JANUARY;
-    xsDate.Date = 0x24;
-    xsDate.Year = 0x17;
-
-    if( HAL_RTC_SetDate( &xHrtc, &xsDate, RTC_FORMAT_BCD ) != HAL_OK )
     {
         Error_Handler();
     }

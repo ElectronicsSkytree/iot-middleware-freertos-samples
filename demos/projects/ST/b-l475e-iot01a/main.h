@@ -39,6 +39,8 @@
 /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler( void );
 
+    void Reset_Hour( RTC_TimeTypeDef sTime, RTC_DateTypeDef sDate );
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
