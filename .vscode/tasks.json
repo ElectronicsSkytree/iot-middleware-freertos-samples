@@ -17,6 +17,21 @@
             "dependsOn": [ "Build b-l475e-iot01a" ]
         },
         {
+            "label": "Build and Deploy stm32h745i-disco",
+            "type": "shell",
+            "command": "openocd -f board/stm32h745i-disco.cfg -c \"program stm32h745i-disco/src/projects/ST/stm32h745i-disco/cm7/iot-middleware-skytree.elf verify\" -c \"reset halt\" -c shutdown",
+            "windows": {
+                "options": {
+                  "shell": {
+                      "executable": "cmd.exe",
+                      "args": ["/c"]
+                  }
+                }
+              },
+            "problemMatcher": [],
+            "dependsOn": [ "Build stm32h745i-disco" ]
+        },
+        {
             "label": "Download FreeRTOS",
             "type": "shell",
             "isBackground": false,

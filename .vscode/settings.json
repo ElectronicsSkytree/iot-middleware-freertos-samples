@@ -4,6 +4,10 @@
     "files.associations": {
         "limits": "c",
         "main.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "controller_data.h": "c",
+        "gui_comm_api.h": "c",
+        "chrono": "c",
+        "algorithm": "c"
     }
 }

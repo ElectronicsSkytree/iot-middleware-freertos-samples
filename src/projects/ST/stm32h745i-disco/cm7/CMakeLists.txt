@@ -1,0 +1,88 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+
+# Copyright (c) Skytree B.V. All rights reserved.
+
+stm32_fetch_cube(H7)
+lwip_fetch()
+
+find_package(CMSIS COMPONENTS STM32H7 STM32H7_M7 REQUIRED)
+find_package(HAL COMPONENTS STM32H7_M7 REQUIRED)
+find_package(BSP COMPONENTS STM32H745XI_M7 REQUIRED)
+find_package(LWIP)
+
+# set parent scope path
+set(BOARD_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
+set(BOARD_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM7_PATH} CACHE INTERNAL "FreeRTOS Port used ")
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
+
+include_directories(${BOARD_CONFIG_PATH})
+include_directories(port)
+
+file(GLOB STCODE_SOURCES st_code/*.c)
+file(GLOB LWIP_PORT_SOURCES
+    st_code/lwip/App/*.c
+    st_code/lwip/Target/*.c
+    st_code/lwip/system/*.c)
+
+set(PROJECT_SOURCES
+    ${LWIP_PORT_SOURCES}
+    ${STCODE_SOURCES}
+    main.c
+    driver_wrappers/connection.c
+    controller_communication/uart_api.c
+    controller_communication/gui_comm_api.c
+    controller_communication/controller_data.c)
+
+stm32_add_linker_script(CMSIS::STM32::H7::M7 INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/STM32H745XIHX_FLASH.ld")
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC
+    .
+    st_code
+    st_code/lwip/App
+    st_code/lwip/Target
+    st_code/lwip/system
+    driver_wrappers
+    controller_communication)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    FreeRTOS::Timers
+    FreeRTOS::EventGroups
+    FreeRTOS::Heap::5
+    FreeRTOS::ARM_CM7
+    FreeRTOSPlus::Utilities::backoff_algorithm
+    FreeRTOSPlus::Utilities::logging
+    FreeRTOSPlus::ThirdParty::mbedtls
+    LWIP
+    HAL::STM32::H7::M7::RCC
+    HAL::STM32::H7::M7::RCCEx
+    HAL::STM32::H7::M7::SPI
+    HAL::STM32::H7::M7::RTC
+    HAL::STM32::H7::M7::UART
+    HAL::STM32::H7::M7::DMA
+    HAL::STM32::H7::M7::PWREx
+    HAL::STM32::H7::M7::GPIO
+    HAL::STM32::H7::M7::CORTEX
+    HAL::STM32::H7::M7::RNG
+    HAL::STM32::H7::M7::TIM
+    HAL::STM32::H7::M7::TIMEx
+    HAL::STM32::H7::M7::UARTEx
+    CMSIS::STM32::H745XI::M7
+    az::iot_middleware::freertos
+    HAL::STM32::H7::M7::ETH
+    BSP::STM32::H7::M7::LAN8742
+    SKYTREE::IOT_COMMUNICATION
+    SKYTREE::IOT_PROCESS
+    SKYTREE::COMMON::CONNECTION
+    SKYTREE::TRANSPORT::MBEDTLS
+    SKYTREE::SOCKET::LWIP)
+
+add_map_file(${PROJECT_NAME} ${PROJECT_NAME}.map)
+
+add_custom_command(TARGET ${PROJECT_NAME}
+    # Run after all other rules within the target have been executed
+    POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
+    COMMENT "Generate iotkit Bin file"
+    VERBATIM)

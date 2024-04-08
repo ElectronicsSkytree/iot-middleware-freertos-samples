@@ -49,6 +49,21 @@
             "preLaunchTask": "Build and Deploy b-l475e-iot01a"
         },
         {
+            "name": "STM H745I: Local OpenOCD",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "STM32H745",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/stm32h745i-disco/src/projects/ST/stm32h745i-disco/cm7/iot-middleware-skytree.elf",
+            // "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/stm32h745i-disco.cfg"
+            ],
+            "preLaunchTask": "Build and Deploy stm32h745i-disco"
+        },
+        {
             "name": "NXP mimxrt1060: Local J-Link",
             "type": "cortex-debug",
             "request": "launch",
