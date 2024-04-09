@@ -24,10 +24,6 @@ typedef struct{
 	 void* callback_args;
 } uart_tx_struct_t;
 
-/* VARIABLES */
-
-/* FUNCTIONS DECLARATIONS */
-
 #ifdef __cplusplus
 	}
 #endif

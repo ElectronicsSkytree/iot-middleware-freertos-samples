@@ -31,6 +31,8 @@
         "connection.h": "c",
         "logging_levels.h": "c",
         "system_error": "c",
-        "logging_stack.h": "c"
+        "logging_stack.h": "c",
+        "uart_wrapper.h": "c",
+        "freertos.h": "c"
     }
 }

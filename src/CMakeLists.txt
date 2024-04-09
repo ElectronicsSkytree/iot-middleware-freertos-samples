@@ -65,15 +65,24 @@ if(NOT (TARGET SKYTREE::TRANSPORT::MBEDTLS))
         ${CMAKE_CURRENT_SOURCE_DIR}/common/utilities/)
 endif()
 
-# Target for iot communication (with controller)
+# Target for controller communication interface repo
 if(NOT (TARGET SKYTREE::COMMON::IOT_COMMUNICATION))
     add_library(SKYTREE::COMMON::IOT_COMMUNICATION INTERFACE IMPORTED)
     target_include_directories(SKYTREE::COMMON::IOT_COMMUNICATION INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/common/iot_communication/)
 endif()
 
+# Target for controller communication (with ccu)
+if(NOT (TARGET SKYTREE::COMMON::CONTROLLER_COMMUNICATION))
+    add_library(SKYTREE::COMMON::CONTROLLER_COMMUNICATION INTERFACE IMPORTED)
+    target_sources(SKYTREE::TRANSPORT::MBEDTLS INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/controller_communication/controller_data.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/controller_communication/gui_comm_api.c)
+    target_include_directories(SKYTREE::COMMON::CONTROLLER_COMMUNICATION INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/controller_communication/)
+endif()
+
 # Add board specific
-# Still keeping this as we might try stm32h745i at some point as it has ethernet
 if(BOARD_L STREQUAL "stm32h745i-disco")
     set(BOARD_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/projects/${VENDOR}/${BOARD_L}/cm7)
 else()

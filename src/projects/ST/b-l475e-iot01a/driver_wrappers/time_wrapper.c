@@ -13,9 +13,6 @@
 #include "FreeRTOS.h"
 #include "timers.h"
 
-/* HAL includes */
-#include "stm32l4xx_hal.h"
-
 RTC_HandleTypeDef xHrtc;
 TimerHandle_t xHTimerHandle;
 

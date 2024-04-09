@@ -15,6 +15,8 @@
  */
 void InitializeHeap( void );
 
+void MPUConfig( void );
+
 #ifdef __cplusplus
     }
 #endif

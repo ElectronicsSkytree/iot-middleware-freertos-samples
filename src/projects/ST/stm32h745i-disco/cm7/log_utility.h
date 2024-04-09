@@ -14,6 +14,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+static char cPrintString[ 512 ];
+
 /**
  * @todo To avoid link error, have done this. Fix this later.
 */
@@ -27,12 +29,25 @@ const char* getCurrentTime()
 */
 void vLoggingPrintfWithTimestamp( const char * pcFormat, ... )
 {
+    size_t xLength = 0;
+
     va_list vargs;
 
     printf("[%s] ", getCurrentTime());
 
     va_start( vargs, pcFormat );
-    vprintf( pcFormat, vargs );
+
+    xLength = vsnprintf( cPrintString, sizeof( cPrintString ), pcFormat, vargs );
+
+    if( xLength > 0 )
+    {
+        xLength = xLength > sizeof( cPrintString ) ? sizeof( cPrintString ) : xLength;
+
+        while( HAL_OK != HAL_UART_Transmit( &huart3, ( uint8_t * ) cPrintString, xLength, 30000 ) )
+        {
+        }
+    }
+
     va_end( vargs );
 }
 /*-----------------------------------------------------------*/
@@ -42,10 +57,23 @@ void vLoggingPrintfWithTimestamp( const char * pcFormat, ... )
 */
 void vLoggingPrintf( const char * pcFormat, ... )
 {
+    size_t xLength = 0;
+
     va_list vargs;
 
     va_start( vargs, pcFormat );
-    vprintf( pcFormat, vargs );
+
+    xLength = vsnprintf( cPrintString, sizeof( cPrintString ), pcFormat, vargs );
+
+    if( xLength > 0 )
+    {
+        xLength = xLength > sizeof( cPrintString ) ? sizeof( cPrintString ) : xLength;
+
+        while( HAL_OK != HAL_UART_Transmit( &huart3, ( uint8_t * ) cPrintString, xLength, 30000 ) )
+        {
+        }
+    }
+
     va_end( vargs );
 }
 /*-----------------------------------------------------------*/

@@ -27,7 +27,7 @@
         {
             "name": "stm32h745i-disco",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/stm32h745i-disco",
+            "binaryDir": "${sourceDir}/stm32h745i-disco/Debug",
             "cacheVariables": {
                 "VENDOR": "ST",
                 "BOARD": "stm32h745i-disco"

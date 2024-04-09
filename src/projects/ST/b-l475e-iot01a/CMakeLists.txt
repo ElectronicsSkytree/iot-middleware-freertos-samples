@@ -29,9 +29,7 @@ set(PROJECT_SOURCES
     driver_wrappers/security_wrapper.c
     driver_wrappers/time_wrapper.c
     driver_wrappers/uart_wrapper.c
-    controller_communication/uart_api.c
-    controller_communication/gui_comm_api.c
-    controller_communication/controller_data.c)
+    controller_communication/uart_api.c)
 
 stm32_add_linker_script(CMSIS::STM32::L4 INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/STM32L475VGTx_FLASH.ld")
@@ -52,13 +50,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::RCC
     HAL::STM32::L4::RCCEx
     HAL::STM32::L4::SPI
-    # HAL::STM32::L4::QSPI
-    #HAL::STM32::L4::I2C
-    # HAL::STM32::L4::I2CEx
     HAL::STM32::L4::RTC
     HAL::STM32::L4::UART
     HAL::STM32::L4::DMA
-    # HAL::STM32::L4::PWR
     HAL::STM32::L4::PWREx
     HAL::STM32::L4::GPIO
     HAL::STM32::L4::CORTEX
@@ -71,9 +65,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     BSP::STM32::L4::HTS221
     BSP::STM32::L4::LIS3MDL
     BSP::STM32::L4::LPS22HB
-    # STM32::NoSys
     az::iot_middleware::freertos
     SKYTREE::COMMON::IOT_COMMUNICATION
+    SKYTREE::COMMON::CONTROLLER_COMMUNICATION
     SKYTREE::IOT_PROCESS
     SKYTREE::TRANSPORT::MBEDTLS)
 
@@ -83,5 +77,5 @@ add_custom_command(TARGET ${PROJECT_NAME}
     # Run after all other rules within the target have been executed
     POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
-    COMMENT "Generate Bin file"
+    COMMENT "Generate IoTKit Bin file"
     VERBATIM)
