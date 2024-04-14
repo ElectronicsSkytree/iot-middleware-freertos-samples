@@ -6,7 +6,7 @@
 /* Local includes */
 #include "main.h"
 #include "errors.h"
-#include "controller_data.h"
+// #include "controller_data.h"
 #include "freertos_wrapper.h"
 #include "time_wrapper.h"
 #include "security_wrapper.h"
@@ -96,11 +96,11 @@ static void prvMiscInitialization( void )
 
     /* Heap_5 is being used because the RAM is not contiguous in memory, so the
      * heap must be initialized. */
-    prvInitializeHeap();
+    InitializeHeap();
 
     /* Task to start communicating with the controller, such as a controllino MEGA.
      * Doing before backend connection so that we can start receiving data immediately. */
-    vControllerCommunicationTask();
+    // vControllerCommunicationTask();
 }
 /*-----------------------------------------------------------*/
 

@@ -4,7 +4,6 @@
 #include "errors.h"
 #include "config.h"
 #include "time_wrapper.h"
-#include "wifi_wrapper.h"
 
 /* Standard includes */
 #include <time.h>
@@ -12,6 +11,11 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "lwip.h"
+#include "lwip/apps/sntp.h"
+
+/* HAL includes */
+#include "stm32h7xx_hal.h"
 
 /* Global & static Variables */
 RTC_HandleTypeDef xHrtc;
@@ -129,7 +133,7 @@ void SystemClockConfig( void )
 
     if( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     /** Initializes the CPU, AHB and APB busses clocks
@@ -147,7 +151,7 @@ void SystemClockConfig( void )
 
     if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC | RCC_PERIPHCLK_USART3
@@ -158,7 +162,7 @@ void SystemClockConfig( void )
 
     if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInitStruct ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 }
 /*-----------------------------------------------------------*/
@@ -288,12 +292,13 @@ BaseType_t InitializeSNTP( void )
     {
         getTimeRTC( &unixTime );
 
-        if( unixTime < democonfigSNTP_INIT_WAIT )
+        // @todo seems to be a silly logic
+        if( unixTime < configSNTP_INIT_WAIT )
         {
             configPRINTF( ( "SNTP not queried yet. Retrying.\r\n" ) );
-            vTaskDelay( democonfigSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
+            vTaskDelay( configSNTP_INIT_RETRY_DELAY / portTICK_PERIOD_MS );
         }
-    } while( unixTime < democonfigSNTP_INIT_WAIT );
+    } while( unixTime < configSNTP_INIT_WAIT );
 
     configPRINTF( ( "> SNTP Initialized: %lu\r\n", unixTime ) );
 

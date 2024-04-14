@@ -28,7 +28,7 @@ find_package(FreeRTOSPlus REQUIRED)
 # Include logging globally
 include_directories("${FreeRTOSPlus_PATH}/Source/Utilities/logging")
 
-# Add main skytree source
+# Add skytree source
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Add MCU flags, set using board cmake

@@ -11,11 +11,14 @@
 #endif
 
 /**
- * @brief To check if the MCU is connected to the internet.
- *
- * @todo Does not implement anything currently, returns true.
- */
-bool IsConnectedToInternet();
+ * @brief Is connected to the internet
+ * 
+ * @todo TBD, retruns true for now
+*/
+bool IsConnectedToInternet()
+{
+    return true;
+}
 
 #ifdef __cplusplus
     }

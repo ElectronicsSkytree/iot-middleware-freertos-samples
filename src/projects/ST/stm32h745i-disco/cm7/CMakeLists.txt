@@ -12,8 +12,8 @@ find_package(BSP COMPONENTS STM32H745XI_M7 REQUIRED)
 find_package(LWIP)
 
 # set parent scope path
-set(BOARD_DEMO_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
-set(BOARD_DEMO_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM7_PATH} CACHE INTERNAL "FreeRTOS Port used ")
+set(BOARD_CONFIG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/config CACHE INTERNAL "Config path")
+set(BOARD_FREERTOS_PORT_PATH ${FreeRTOS_ARM_CM7_PATH} CACHE INTERNAL "FreeRTOS Port used ")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/gcc_flags.cmake)
 
@@ -30,7 +30,11 @@ set(PROJECT_SOURCES
     ${LWIP_PORT_SOURCES}
     ${STCODE_SOURCES}
     main.c
-    controller_communication/uart_api.c)
+    driver_wrappers/freertos_wrapper.c
+    driver_wrappers/security_wrapper.c
+    driver_wrappers/time_wrapper.c
+    driver_wrappers/uart_wrapper.c)
+    #controller_communication/uart_api.c)
 
 stm32_add_linker_script(CMSIS::STM32::H7::M7 INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/STM32H745XIHX_FLASH.ld")
@@ -40,7 +44,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     st_code
     st_code/lwip/App
     st_code/lwip/Target
-    st_code/lwip/system)
+    st_code/lwip/system
+    driver_wrappers
+    controller_communication)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     FreeRTOS::Timers
     FreeRTOS::EventGroups
@@ -71,7 +77,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     BSP::STM32::H7::M7::LAN8742
 
     SKYTREE::COMMON::IOT_COMMUNICATION
-    # SKYTREE::COMMON::CONTROLLER_COMMUNICATION
+    SKYTREE::COMMON::CONTROLLER_COMMUNICATION
     SKYTREE::IOT_PROCESS
     SKYTREE::TRANSPORT::MBEDTLS
     SKYTREE::SOCKET::LWIP)

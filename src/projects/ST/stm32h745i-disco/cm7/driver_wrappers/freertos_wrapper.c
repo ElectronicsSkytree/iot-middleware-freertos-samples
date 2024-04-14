@@ -7,6 +7,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* HAL includes */
+#include "stm32h7xx_hal.h"
+
 // @todo who is using this?
 void prvGetRegistersFromStack( uint32_t * pulFaultStackAddress )
 {

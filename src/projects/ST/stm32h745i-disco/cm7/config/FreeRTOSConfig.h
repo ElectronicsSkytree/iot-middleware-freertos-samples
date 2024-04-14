@@ -128,6 +128,6 @@
 /* USER CODE END Defines */
 
 extern int uxRand( void );
-#define configRAND32()    iMainRand32()
+#define configRAND32()    GetRand32()
 
 #endif /* FREERTOS_CONFIG_H */

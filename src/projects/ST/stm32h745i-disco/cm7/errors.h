@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 /* HAL includes */
-#include "stm32l475e_iot01.h"
+// #include "stm32l475e_iot01.h"
 
 /**
  * @brief generic success fail options
@@ -34,12 +34,12 @@ typedef uint8_t error_t;
  */
 void Error_Handler( const char* func, int32_t line )
 {
-    BSP_LED_Toggle( LED_GREEN );
+    // BSP_LED_Toggle( LED_GREEN );
 
     HAL_Delay( 2000 );
 
     /* To indicate IoT main is going down */
-    BSP_LED_Off( LED1 );
+    // BSP_LED_Off( LED1 );
 
     // Force reset to retry
     vLoggingPrintf( "[FATAL] [%s] [%s:%d] Reset device!!\r\n", getCurrentTime(), func, line );

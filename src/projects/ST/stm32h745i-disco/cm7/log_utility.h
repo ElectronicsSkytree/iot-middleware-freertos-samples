@@ -14,7 +14,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+/* HAL includes */
+#include "stm32h7xx_hal.h"
+
 static char cPrintString[ 512 ];
+extern UART_HandleTypeDef huart3;
 
 /**
  * @todo To avoid link error, have done this. Fix this later.

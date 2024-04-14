@@ -11,7 +11,7 @@
 #endif
 
 /* HAL includes */
-// #include "stm32l4xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 /* Static and Extern */
 // extern TIM_HandleTypeDef htim6;

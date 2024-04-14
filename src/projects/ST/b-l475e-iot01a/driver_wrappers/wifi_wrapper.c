@@ -140,14 +140,3 @@ BaseType_t InitializeWifi( void )
     return ret;
 }
 /*-----------------------------------------------------------*/
-
-/**
- * @brief Is connected to the internet
- * 
- * @todo TBD, retruns true for now
-*/
-bool IsConnectedToInternet()
-{
-    return true;
-}
-/*-----------------------------------------------------------*/

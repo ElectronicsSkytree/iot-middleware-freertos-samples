@@ -12,7 +12,7 @@
 #include "FreeRTOS.h"
 
 /* HAL includes */
-#include "stm32l4xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 RNG_HandleTypeDef xHrng;
 
@@ -50,7 +50,7 @@ void RNGInit( void )
 
     if( HAL_RNG_Init( &xHrng ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     /* USER CODE BEGIN RNG_Init 2 */

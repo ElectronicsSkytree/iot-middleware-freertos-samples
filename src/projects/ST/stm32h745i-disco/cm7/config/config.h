@@ -1,19 +1,30 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-#ifndef DEMO_CONFIG_H
-#define DEMO_CONFIG_H
+/* Copyright (c) Skytree B.V. All rights reserved. */
+
+#ifndef CONFIG_H
+#define CONFIG_H
+
+/* Local Includes */
+#include "log_utility.h"
+#include "time_wrapper.h"
 
 /* FreeRTOS config include. */
 #include "FreeRTOSConfig.h"
 
-/*
- * This plug-and-play model can be found at:
- * https://github.com/Azure/iot-plugandplay-models/blob/main/dtmi/com/example/thermostat-1.json
- * This Model ID is tightly tied to the code implementation in `sample_azure_iot_pnp_simulated_device.c`
- * If you intend to test a different Model ID, please provide the implementation of the model on your application.
- */
-#define sampleazureiotMODEL_ID    "dtmi:com:example:Thermostat;1"
+// In actual pilot or test setup, we need to hardcode the Wi-Fi credentials and
+// other necessary stuffs.
+
+// Tests on desk: Still point to old iothub
+// #define HOME_SETUP 1
+#define OFC_SETUP 1
+
+// Pilots
+// #define WUR_SETUP 1
+// #define GROWY_SETUP 1
+// #define KOPPERT_CRESS_SETUP 1
+// #define FIELDLESS_SETUP 1
 
 /**************************************************/
 /******* DO NOT CHANGE the following order ********/
@@ -22,30 +33,41 @@
 /* Include logging header files and define logging macros in the following order:
  * 1. Include the header file "logging_levels.h".
  * 2. Define the LIBRARY_LOG_NAME and LIBRARY_LOG_LEVEL macros depending on
- * the logging configuration for DEMO.
- * 3. Include the header file "logging_stack.h", if logging is enabled for DEMO.
+ * the logging configuration.
+ * 3. Include the header file "logging_stack.h", if logging is enabled.
  */
 
 #include "logging_levels.h"
 
-// Tests on desk: Still point to old iothub
-#define HOME_SETUP 1
-// #define OFC_SETUP 1
-
-/* Logging configuration for the Demo. */
+/* Logging configuration. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME    "AzureIoTDemo"
+    #define LIBRARY_LOG_NAME    "SkytreeIoT"
 #endif
 
 #ifndef LIBRARY_LOG_LEVEL
-    #define LIBRARY_LOG_LEVEL    LOG_INFO
+    #define LIBRARY_LOG_LEVEL    LOG_DEBUG
+#endif
+
+/**
+ * Overriding the metadata to add timestamp
+ * 
+ * @todo The timestamp is being added after the log level, change this later
+ */
+extern const char* getCurrentTime();
+
+#ifndef LOG_METADATA_FORMAT
+    #define LOG_METADATA_FORMAT    "[%s] [%s:%d] "                  /**< @brief Format of metadata prefix in log messages. */
+#endif
+
+#ifndef LOG_METADATA_ARGS
+    #define LOG_METADATA_ARGS    getCurrentTime(), __FUNCTION__, __LINE__  /**< @brief Arguments into the metadata logging prefix format. */
 #endif
 
 /*
  * The function prints to the console before the network is connected;
- * then a UDP port after the network has connected. */
-extern void vLoggingPrintf( const char * pcFormatString,
-                            ... );
+ * then a UDP port after the network has connected.
+ */
+extern void vLoggingPrintf( const char * pcFormatString, ... );
 
 /* Map the SdkLog macro to the logging function to enable logging */
 #ifndef SdkLog
@@ -60,11 +82,10 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Enable Device Provisioning
  *
  * @note To disable Device Provisioning undef this macro
- *
  */
-#define democonfigENABLE_DPS_SAMPLE
+#define enableDPS
 
-#ifdef democonfigENABLE_DPS_SAMPLE
+#ifdef enableDPS
 
 /**
  * @brief Provisioning service endpoint.
@@ -72,15 +93,22 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#service-operations-endpoint
  *
  */
-    #define democonfigENDPOINT           "global.azure-devices-provisioning.net"
+    #define dpsENDPOINT           "global.azure-devices-provisioning.net"
 
 /**
  * @brief Id scope of provisioning service.
  *
  * @note https://docs.microsoft.com/azure/iot-dps/concepts-service#id-scope
  *
+ * @note This is the DPS ID Scope we have in Skytree Azure backend
+ * 
  */
-    #define democonfigID_SCOPE           "0ne00AFD579"
+    #if defined(HOME_SETUP) || defined(OFC_SETUP)
+        #define configID_SCOPE           "0ne00AFD579"
+    #else
+        // @todo: Old iot for test devices, move these to new one as well
+        #define configID_SCOPE           "0ne00BF2AFD"
+    #endif
 
 /**
  * @brief Registration Id of provisioning service
@@ -89,54 +117,63 @@ extern void vLoggingPrintf( const char * pcFormatString,
  *
  *  @note https://docs.microsoft.com/azure/iot-dps/concepts-service#registration-id
  */
-    #ifdef HOME_SETUP
-        #define democonfigREGISTRATION_ID    "skytree_iotkit_home" // home
-    #elif defined(OFC_SETUP)
-        #define democonfigREGISTRATION_ID    "skytree_iotkit_office" // office
-    #endif
 
-#endif /* democonfigENABLE_DPS_SAMPLE */
+    #ifdef HOME_SETUP
+        #define configREGISTRATION_ID    "skytree_iotkit_home" // home
+    #elif defined(OFC_SETUP)
+        #define configREGISTRATION_ID    "skytree_iotkit_office" // office
+    #elif defined(WUR_SETUP)
+        #define configREGISTRATION_ID    "skytree_iotkit_wur" // WUR
+    #elif defined(GROWY_SETUP)
+        #define configREGISTRATION_ID    "skytree_growy_with_alten" // Growy
+    #elif defined(KOPPERT_CRESS_SETUP)
+        #define configREGISTRATION_ID    "skytree_koppert_cress_pilot" // Koppert Cress
+    #elif defined(FIELDLESS_SETUP)
+        #define configREGISTRATION_ID    "skytree_iot_fieldless_pilot" // Fieldless
+    #endif    
+
+#endif /* enableDPS */
 
 /**
  * @brief IoTHub device Id.
- *
  */
-#define democonfigDEVICE_ID               "<YOUR DEVICE ID HERE>"
-
-/**
- * @brief IoTHub module Id.
- *
- * @note This is optional argument for IoTHub
- */
-#define democonfigMODULE_ID               ""
+#define configDEVICE_ID               "<YOUR DEVICE ID HERE>"
 
 /**
  * @brief IoTHub hostname.
- *
  */
-#define democonfigHOSTNAME                "<YOUR IOT HUB HOSTNAME HERE>"
+#define configHOSTNAME                "<YOUR IOT HUB HOSTNAME HERE>"
 
 /**
  * @brief Device symmetric key
- *
  */
 #ifdef HOME_SETUP
-    #define democonfigDEVICE_SYMMETRIC_KEY    "5Y53mc7C7vwmhumMCgj441h7CvdXo+Kr4xxSFUJzYP67vhCWrPvEzMeHIJISFqEp4hO4r6gJykKfW2OzQkjb/w==" // home device
+    #define deviceSYMMETRIC_KEY    "5Y53mc7C7vwmhumMCgj441h7CvdXo+Kr4xxSFUJzYP67vhCWrPvEzMeHIJISFqEp4hO4r6gJykKfW2OzQkjb/w==" // home device
 #elif defined(OFC_SETUP)
-    #define democonfigDEVICE_SYMMETRIC_KEY    "PLbvN5Tlmu0pViNPBlUDioXvwAzjzeGTCJOVb36Z5QZ6GDZzDRKehzqtERJlIAnl8QFbAUB0PtkMO7y11tIiUw==" // Office device
+    #define deviceSYMMETRIC_KEY    "PLbvN5Tlmu0pViNPBlUDioXvwAzjzeGTCJOVb36Z5QZ6GDZzDRKehzqtERJlIAnl8QFbAUB0PtkMO7y11tIiUw==" // Office device
+#elif defined(WUR_SETUP)
+    #define deviceSYMMETRIC_KEY    "xpEawa5WwBPLLKKZmqbFea9m3mcyLxFDETZpPqT/w9LReyhGprneLbrnmd3xnn5tURkW2eaxUDkcE1eDOwdMtw==" // WUR
+#elif defined(GROWY_SETUP)
+    #define deviceSYMMETRIC_KEY "hqJEvY1bC93mIksjXPR4kdnx0jx/Yv5h/JsxzDBICKMniegZI07f+aiIuz/Ol49LwFxvCTiOdGKpUJKN6A2XWw=="   // Growy
+#elif defined(KOPPERT_CRESS_SETUP)
+    #define deviceSYMMETRIC_KEY "be3aTTmc8ZsVD3Dntl2Fbxr2H3isAZ056/rKE95BNrHhFp8dGQ8mPLTk8plfBwweCaYIAu8aMY1qZNn6gaZQ9w=="   // Koppert Cress 
+#elif defined(FIELDLESS_SETUP)
+    #define deviceSYMMETRIC_KEY    "lCz8fl+XuEy/higmXJIMuPn1mTY9Ultv99Le+UrcfkE1oBFz9HaEHpMqw9+LOFC95AGyBVHLocb9LNwZXoeyzg==" // Fieldless Alten
 #endif
 
 /**
  * @brief Client's X509 Certificate.
  *
+ * @todo Client certificate is not supported right now.
+ *       Enable it when implemented.
  */
-/* #define democonfigCLIENT_CERTIFICATE_PEM    "<YOUR DEVICE CERT HERE>" */
+/* #define clientCERTIFICATE_SUPPORTED */
+/* #define clientCERTIFICATE_PEM    "<DEVICE CERT HERE>" */
 
 /**
  * @brief Client's private key.
- *
  */
-/* #define democonfigCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>" */
+/* #define clientPRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>" */
 
 /**
  * @brief Load the required certificates:
@@ -149,7 +186,7 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * https://github.com/Azure-Samples/iot-middleware-freertos-samples/blob/main/docs/certificate-notice.md
  *
  */
-#define democonfigROOT_CA_PEM                                              \
+#define configROOT_CA_PEM                                              \
     "-----BEGIN CERTIFICATE-----\r\n"                                      \
     "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\r\n" \
     "RTESMBAGA1UEChMJQmFsdGltb3JlMRMwEQYDVQQLEwpDeWJlclRydXN0MSIwIAYD\r\n" \
@@ -231,27 +268,21 @@ extern void vLoggingPrintf( const char * pcFormatString,
  * @brief Set the stack size of the main demo task.
  *
  */
-#define democonfigDEMO_STACKSIZE             ( 2 * 1024U )
+#define config_STACKSIZE             ( 2 * 1024U )
 
 /**
  * @brief Size of the network buffer for MQTT packets.
  */
-#define democonfigNETWORK_BUFFER_SIZE        ( 5 * 1024U )
+#define configNETWORK_BUFFER_SIZE        ( 5 * 1024U )
 
 /**
  * @brief IoTHub endpoint port.
  */
-#define democonfigIOTHUB_PORT                ( 8883 )
+#define plainIOTHUB_PORT                ( 8883 )
 
-#define democonfigCHUNK_DOWNLOAD_SIZE        1024
+#define configCHUNK_DOWNLOAD_SIZE        1024
 
-#define democonfigADU_DEVICE_MANUFACTURER    "STMicroelectronics"
-#define democonfigADU_DEVICE_MODEL           "STM32H745"
-#define democonfigADU_UPDATE_PROVIDER        "Contoso"
-#define democonfigADU_UPDATE_NAME            "STM32H745"
-#define democonfigADU_UPDATE_VERSION         "1.0"
+#define configSNTP_INIT_WAIT             1672531200U /* January 1, 2023 */
+#define configSNTP_INIT_RETRY_DELAY      5000
 
-#define democonfigSNTP_INIT_WAIT             1672531200U /* January 1, 2023 */
-#define democonfigSNTP_INIT_RETRY_DELAY      5000
-
-#endif /* DEMO_CONFIG_H */
+#endif // CONFIG_H

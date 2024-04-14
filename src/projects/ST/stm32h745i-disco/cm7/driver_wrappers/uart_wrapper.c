@@ -4,11 +4,10 @@
 #include "uart_wrapper.h"
 
 /* HAL includes */
-#include "stm32l4xx_hal.h"
-#include "stm32l475e_iot01.h"
+#include "stm32h7xx_hal.h"
 
 /* Private variables */
-static UART_HandleTypeDef huart3;
+UART_HandleTypeDef huart3;
 
 /**
  * @brief Publishes a character to the STM32L475 UART
@@ -67,22 +66,22 @@ void USART3_UARTInit( void )
 
     if( HAL_UART_Init( &huart3 ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     if( HAL_UARTEx_SetTxFifoThreshold( &huart3, UART_TXFIFO_THRESHOLD_1_8 ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     if( HAL_UARTEx_SetRxFifoThreshold( &huart3, UART_RXFIFO_THRESHOLD_1_8 ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     if( HAL_UARTEx_DisableFifoMode( &huart3 ) != HAL_OK )
     {
-        Error_Handler();
+        Error_Handler(__func__, __LINE__);
     }
 
     /* USER CODE BEGIN USART3_Init 2 */
