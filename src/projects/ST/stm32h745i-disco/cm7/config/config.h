@@ -1,6 +1,8 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
+/* Copyright (c) Skytree B.V. All rights reserved. */
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -46,8 +48,7 @@
 /*
  * The function prints to the console before the network is connected;
  * then a UDP port after the network has connected. */
-extern void vLoggingPrintf( const char * pcFormatString,
-                            ... );
+extern void vLoggingPrintf( const char * pcFormatString, ... );
 
 /* Map the SdkLog macro to the logging function to enable logging */
 #ifndef SdkLog
@@ -113,23 +114,11 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #endif /* enableDPS */
 
 /**
- * @brief IoTHub device Id.
- *
+ * @brief Client's X509 Certificate & key
+ * @note not doing X.509 way currently
  */
-#define configDEVICE_ID               "<YOUR DEVICE ID HERE>"
-
-/**
- * @brief IoTHub module Id.
- *
- * @note This is optional argument for IoTHub
- */
-#define configMODULE_ID               ""
-
-/**
- * @brief IoTHub hostname.
- *
- */
-#define configHOSTNAME                "<YOUR IOT HUB HOSTNAME HERE>"
+// #define configCLIENT_CERTIFICATE_PEM    "<YOUR DEVICE CERT HERE>"
+// #define configCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>"
 
 /**
  * @brief Device symmetric key
@@ -148,18 +137,6 @@ extern void vLoggingPrintf( const char * pcFormatString,
 #elif defined(FIELDLESS_SETUP)
     #define deviceSYMMETRIC_KEY    "lCz8fl+XuEy/higmXJIMuPn1mTY9Ultv99Le+UrcfkE1oBFz9HaEHpMqw9+LOFC95AGyBVHLocb9LNwZXoeyzg==" // Fieldless Alten
 #endif
-
-/**
- * @brief Client's X509 Certificate.
- *
- */
-/* #define configCLIENT_CERTIFICATE_PEM    "<YOUR DEVICE CERT HERE>" */
-
-/**
- * @brief Client's private key.
- *
- */
-/* #define configCLIENT_PRIVATE_KEY_PEM    "<YOUR DEVICE PRIVATE KEY HERE>" */
 
 /**
  * @brief Load the required certificates:
@@ -251,19 +228,14 @@ extern void vLoggingPrintf( const char * pcFormatString,
     "-----END CERTIFICATE-----\r\n"
 
 /**
- * @brief Set the stack size of the tasks.
- *
- * @todo Should evaluate stack size of each task.
- */
-#define config_STACKSIZE             ( 2 * 1024U )
-
-/**
  * @brief Size of the network buffer for MQTT packets.
  */
 #define configNETWORK_BUFFER_SIZE        ( 5 * 1024U )
 
 /**
- * @brief IoTHub endpoint port.
+ * @brief IoTHub endpoint (MQTT) port.
+ * 
+ * @todo websocket to be enabled later.
  */
 #define configIOTHUB_PORT                ( 8883 )
 

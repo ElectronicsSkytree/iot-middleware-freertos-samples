@@ -16,11 +16,14 @@
 
 /**
  * Overriding the asserts to let IoT connectivity continue.
+ * 
  * @todo Before restarting unsubscribing and TLS disconnect might not
  *       need to be done because the assert might be because of
  *       several software reasons (just not TLS/ socket disconnection).
+ * 
  * @todo We may not need this in PCBA but it might be good to check
  *       if the TLS issue happens with ethernet too.
+ * 
  * @todo We have system reset every failure, improve this by avoiding
  *       in unnecessary places.
 */

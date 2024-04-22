@@ -14,7 +14,9 @@ string(TOUPPER ${BOARD} BOARD_U)
 if(NOT (TARGET SKYTREE::IOT_PROCESS))
     add_library(SKYTREE::IOT_PROCESS INTERFACE IMPORTED)
     target_sources(SKYTREE::IOT_PROCESS INTERFACE 
-      ${CMAKE_CURRENT_SOURCE_DIR}/process/iot_tasks.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/process/process_backend.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/process/process_telemetry.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/process/process_cloud_msg.c
       ${CMAKE_CURRENT_SOURCE_DIR}/process/properties.c
       ${CMAKE_CURRENT_SOURCE_DIR}/process/telemetry.c)
     target_include_directories(SKYTREE::IOT_PROCESS INTERFACE

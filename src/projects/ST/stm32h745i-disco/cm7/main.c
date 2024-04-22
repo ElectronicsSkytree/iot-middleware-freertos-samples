@@ -39,12 +39,10 @@ static void MX_USART1_UART_Init( void );
 
 EventGroupHandle_t xConnectionEventGroup;
 
-/*
- * Prototypes for the demos that can be started from this project.
- */
-extern void vIoTBackendConnectionTask( void );
-// extern void vIoTCloudMessageTask( void );
-// extern void vIoTTelemetryTask( void );
+/**
+ * @brief Task externs
+*/
+extern void vCreateIoTBackendConnectionTask( void );
 extern void vControllerCommunicationTask( void );
 
 /**
@@ -126,6 +124,7 @@ int uxRand( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
+    /* Initializers */
     MX_LWIP_Init();
     prvInitializeRTC();
     prvInitializeSNTP();
@@ -137,13 +136,7 @@ void vApplicationDaemonTaskStartupHook( void )
     vControllerCommunicationTask();
 
     /* 2. IoT backend connection task */
-    vIoTBackendConnectionTask();
-
-    /* 3. IoT subscription and direct method task */
-    // vIoTCloudMessageTask();
-
-    /* 4. IoT telemetry task */
-    // vIoTTelemetryTask();
+    vCreateIoTBackendConnectionTask();
 }
 /*-----------------------------------------------------------*/
 
