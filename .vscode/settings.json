@@ -9,6 +9,7 @@
         "gui_comm_api.h": "c",
         "chrono": "c",
         "algorithm": "c",
-        "assert_override.h": "c"
+        "assert_override.h": "c",
+        "cstdint": "cpp"
     }
 }

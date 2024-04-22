@@ -3,10 +3,6 @@
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
-#ifdef __cplusplus
-    extern "C" {
-#endif
-
 /* Local Includes */
 #include "controller_data.h"
 
@@ -59,9 +55,5 @@ uint32_t CreateErrorMessage(
 uint32_t CreateTelemetry(
     SKID_iot_status_t skid_data, UNIT_iot_status_t unit_data,
     uint8_t * pucTelemetryData, uint32_t ulTelemetryDataLength );
-
-#ifdef __cplusplus
-    }
-#endif
 
 #endif // TELEMETRY_H

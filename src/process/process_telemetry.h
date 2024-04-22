@@ -3,6 +3,9 @@
 #ifndef PROCESS_TELEMETRY_H
 #define PROCESS_TELEMETRY_H
 
+/* Local includes */
+#include "FreeRTOS.h"
+
 /**
  * @brief Create IoT telemetry task.
  * 

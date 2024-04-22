@@ -657,7 +657,7 @@ void send_unlock_status(void){
  * 
  * Responsible for RxTx UART data to/from the ccu
  */
-void vControllerCommunicationTask( void )
+void vCreateControllerCommunicationTask( void )
 {
     xTaskCreate( prvControllerCommunicationTask,    /* Function that implements the task. */
                  "controller_communication_task",   /* Text name for the task - only used for debugging. */

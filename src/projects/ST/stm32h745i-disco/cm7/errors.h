@@ -3,10 +3,6 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 /* Local includes */
 #include "log_utility.h"
 
@@ -57,9 +53,5 @@ void Error_Handler( const char* func, int32_t line )
     #endif
 }
 /*-----------------------------------------------------------*/
-
-#ifdef __cplusplus
-	}
-#endif
 
 #endif // ERRORS_H

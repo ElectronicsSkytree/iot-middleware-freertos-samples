@@ -3,10 +3,6 @@
 #ifndef PROPERTIES_H
 #define PROPERTIES_H
 
-#ifdef __cplusplus
-    extern "C" {
-#endif
-
 /* Local Includes */
 #include "errors.h"
 
@@ -84,9 +80,5 @@ error_t ParseDesiredProperties( const uint8_t* payload, uint32_t payload_length,
  * @return 0 for failure and 1 for success
 */
 error_t ParseSystemProperties(const uint8_t* payload, uint32_t payload_length, SYSTEM_Properties_t* system_properties);
-
-#ifdef __cplusplus
-    }
-#endif
 
 #endif // PROPERTIES_H

@@ -11,7 +11,7 @@
 #include "iot_communication.h"
 #include "gui_comm_api.h"
 
-void ControllerCommunicationTask( void* arg );
+void vCreateControllerCommunicationTask( void );
 void send_lock_status(void);
 void send_unlock_status(void);
 UNIT_iot_status_t get_unit_status(sequence_state_t last_unit_state);

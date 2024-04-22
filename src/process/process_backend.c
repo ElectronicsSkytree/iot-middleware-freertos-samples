@@ -10,7 +10,7 @@
 #include "config.h"
 #include "controller_data.h"
 #include "main.h"
-// #include "time_wrapper.h"
+#include "time_wrapper.h"
 #include "connection.h"
 
 /* Azure Provisioning/IoT Hub library includes */

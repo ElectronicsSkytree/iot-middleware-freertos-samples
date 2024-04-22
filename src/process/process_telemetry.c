@@ -2,7 +2,6 @@
 
 /* Local includes */
 #include "common_definition.h"
-// #include "time_wrapper.h"
 #include "properties.h"
 #include "telemetry.h"
 

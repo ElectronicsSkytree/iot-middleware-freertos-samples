@@ -1,9 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
  * Licensed under the MIT License. */
 
-/**
- * @brief Defines an interface to be used by samples when interacting with azure sample base modules.
- */
+/* Copyright (c) Skytree B.V. All rights reserved. */
 
 #ifndef CONNECTION_H
 #define CONNECTION_H

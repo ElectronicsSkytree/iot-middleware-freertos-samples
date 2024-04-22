@@ -3,10 +3,6 @@
 #ifndef LOG_UTILITY_H
 #define LOG_UTILITY_H
 
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 /* Local Includes */
 // #include "time_wrapper.h"
 
@@ -50,9 +46,5 @@ void vLoggingPrintf( const char * pcFormat, ... )
     va_end( vargs );
 }
 /*-----------------------------------------------------------*/
-
-#ifdef __cplusplus
-	}
-#endif
 
 #endif // LOG_UTILITY_H

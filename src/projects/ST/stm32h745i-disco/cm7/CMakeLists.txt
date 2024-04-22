@@ -31,6 +31,10 @@ set(PROJECT_SOURCES
     ${STCODE_SOURCES}
     main.c
     driver_wrappers/connection.c
+    driver_wrappers/memory_wrapper.c
+    driver_wrappers/security_wrapper.c
+    driver_wrappers/time_wrapper.c
+    driver_wrappers/uart_gpio_wrapper.c
     controller_communication/uart_api.c
     controller_communication/gui_comm_api.c
     controller_communication/controller_data.c)
