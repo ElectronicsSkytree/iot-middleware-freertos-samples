@@ -337,7 +337,7 @@ static void prvReadControllerData( void )
                                 prvReadCmuData(ucIncomingData + PACKET_METADATA_NUM_OF_BYTES + 1);
                             }
                             break;
-                        case BOOTUP_STATUS:   // @todo 
+                        case BOOTUP_STATUS:   // @todo
                         case ERROR_MSG:       // @todo
                         case SEND_LOCK_ACK:   // @todo
                         case SEND_UNLOCK_ACK: // @todo
