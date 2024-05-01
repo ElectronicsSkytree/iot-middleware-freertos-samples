@@ -30,7 +30,7 @@ EventGroupHandle_t xConnectionEventGroup;
 /* Prototypes. */
 extern void vIoTBackendConnectionTask( void );
 extern void vIoTTelemetryTask( void );
-extern void vIoTCloudMessageTask( void );
+// extern void vIoTCloudMessageTask( void );
 extern void vControllerCommunicationTask( void );
 
 /**
@@ -130,7 +130,7 @@ void vApplicationDaemonTaskStartupHook( void )
     vIoTBackendConnectionTask();
 
     /* 3. IoT subscription and direct method task */
-    vIoTCloudMessageTask();
+    // vIoTCloudMessageTask();
 
     /* 4. IoT telemetry task */
     vIoTTelemetryTask();

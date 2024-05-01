@@ -21,9 +21,9 @@
 // #define OFC_SETUP 1
 
 // Pilots
-// #define WUR_SETUP 1
+#define WUR_SETUP 1
 // #define GROWY_SETUP 1
-#define KOPPERT_CRESS_SETUP 1
+// #define KOPPERT_CRESS_SETUP 1
 // #define FIELDLESS_SETUP 1
 
 /**************************************************/
@@ -123,7 +123,7 @@ extern void vLoggingPrintf( const char * pcFormatString, ... );
     #elif defined(OFC_SETUP)
         #define configREGISTRATION_ID    "skytree_iotkit_office" // office
     #elif defined(WUR_SETUP)
-        #define configREGISTRATION_ID    "skytree_iotkit_wur" // WUR
+        #define configREGISTRATION_ID    "SKY-CCU-230V-003" // WUR
     #elif defined(GROWY_SETUP)
         #define configREGISTRATION_ID    "skytree_growy_with_alten" // Growy
     #elif defined(KOPPERT_CRESS_SETUP)
@@ -152,7 +152,7 @@ extern void vLoggingPrintf( const char * pcFormatString, ... );
 #elif defined(OFC_SETUP)
     #define deviceSYMMETRIC_KEY    "PLbvN5Tlmu0pViNPBlUDioXvwAzjzeGTCJOVb36Z5QZ6GDZzDRKehzqtERJlIAnl8QFbAUB0PtkMO7y11tIiUw==" // Office device
 #elif defined(WUR_SETUP)
-    #define deviceSYMMETRIC_KEY    "xpEawa5WwBPLLKKZmqbFea9m3mcyLxFDETZpPqT/w9LReyhGprneLbrnmd3xnn5tURkW2eaxUDkcE1eDOwdMtw==" // WUR
+    #define deviceSYMMETRIC_KEY    "R5WIDf1RoONjjuBct6+n5Gk9Kn9sHkeLKV1L0/TG7ubqg5tEwhqbn/5lDx1AV8F61BXbshnbuX59CQiXPzrOpA==" // WUR
 #elif defined(GROWY_SETUP)
     #define deviceSYMMETRIC_KEY "hqJEvY1bC93mIksjXPR4kdnx0jx/Yv5h/JsxzDBICKMniegZI07f+aiIuz/Ol49LwFxvCTiOdGKpUJKN6A2XWw=="   // Growy
 #elif defined(KOPPERT_CRESS_SETUP)
@@ -291,6 +291,7 @@ extern void vLoggingPrintf( const char * pcFormatString, ... );
     #define WIFI_SSID                            "Skytree" // office
 #elif defined(WUR_SETUP)
     #define WIFI_SSID                            "TP-Link_Sagar" // 4G router
+    // #define WIFI_SSID                            "Skytree" // office
 #elif defined(GROWY_SETUP)
     #define WIFI_SSID                            "Skytree" // office
 #elif defined(KOPPERT_CRESS_SETUP)
@@ -309,6 +310,7 @@ extern void vLoggingPrintf( const char * pcFormatString, ... );
     #define WIFI_PASSWORD                        "5kytr335t4ff" // office
 #elif defined(WUR_SETUP)
     #define WIFI_PASSWORD                        "skytree12345" // 4G router
+    // #define WIFI_PASSWORD                        "5kytr335t4ff" // office
 #elif defined(GROWY_SETUP)
     #define WIFI_PASSWORD                        "5kytr335t4ff" // office
 #elif defined(KOPPERT_CRESS_SETUP)

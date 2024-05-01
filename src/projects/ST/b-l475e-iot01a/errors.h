@@ -34,15 +34,12 @@ typedef uint8_t error_t;
  */
 void Error_Handler( const char* func, int32_t line )
 {
+    vLoggingPrintf( "[FATAL] [%s] [%s:%d] Error_Handler: Reset device!!\r\n", getCurrentTime(), func, line );
     BSP_LED_Toggle( LED_GREEN );
 
-    HAL_Delay( 2000 );
-
-    /* To indicate IoT main is going down */
-    BSP_LED_Off( LED1 );
+    // HAL_Delay( 1000 );
 
     // Force reset to retry
-    vLoggingPrintf( "[FATAL] [%s] [%s:%d] Reset device!!\r\n", getCurrentTime(), func, line );
     NVIC_SystemReset();
 
     // Commented this as we always go for a system reset

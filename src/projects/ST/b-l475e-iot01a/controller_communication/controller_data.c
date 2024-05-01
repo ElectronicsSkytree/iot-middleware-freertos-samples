@@ -136,7 +136,9 @@ static void read_incoming_system_data(void)
               //configPRINTF(("CRC: %X\n\r\n", CalcCrc(incoming_data, MESSAGE_LENGTH_SKID_STATUS - 1)));
               if(CalcCrc(incoming_data, MESSAGE_LENGTH_UNIT_STATUS - 1) == incoming_data[MESSAGE_LENGTH_UNIT_STATUS - 1])
               {
+                  configPRINTF( ( "---------read_unit_status---------\r\n" ) );
                   read_unit_status(incoming_data);
+                  configPRINTF( ( "---------read_unit_status done---------\r\n" ) );
               }
               state = 3;
           }
@@ -147,7 +149,9 @@ static void read_incoming_system_data(void)
           {
               if(CalcCrc(incoming_data, MESSAGE_LENGTH_SKID_STATUS - 1) == incoming_data[MESSAGE_LENGTH_SKID_STATUS - 1])
               {
+                  configPRINTF( ( "---------read_skid_status---------\r\n" ) );
                   read_skid_status(incoming_data);
+                  configPRINTF( ( "---------read_skid_status done---------\r\n" ) );
               }
               state = 3;
           }
@@ -455,7 +459,7 @@ static void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sen
   uint8_t number_of_valid_samples = 0;
   sensor_info->stats.avg = sensor_info->stats.max = sensor_info->stats.min = sensor_info->stats.median = 0.0; // Just to be sure everything is set to zero
 
-  sensor_samples[0] = sensor_value = get_sensor_value(0, name, heater_index);
+  sensor_value = get_sensor_value(0, name, heater_index);
   if( update_sensor_total(name, sensor_value, &total, &number_of_valid_samples) )
   {
       // @note We are collecting the samples in a separate array to avoid updating the original
@@ -469,7 +473,7 @@ static void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sen
 
     if( update_sensor_total(name, sensor_value, &total, &number_of_valid_samples) )
     {
-      // @note We are collecting the samples in a separate array to avoid updating the original
+        // @note We are collecting the samples in a separate array to avoid updating the original
         sensor_samples[median_sample_index++] = sensor_value;
 
         if(sensor_value > sensor_info->stats.max)
@@ -483,15 +487,17 @@ static void sensor_average_max_min(sensor_name_t name, uint8_t heater_index, sen
     }
   }  
 
-  // get avg
+  // get avg, median
   if(number_of_valid_samples != 0 && total > 0)
   {
       sensor_info->stats.avg = total / (double)number_of_valid_samples;
       // get median from the samples
       sensor_info->stats.median = get_median(sensor_samples, number_of_valid_samples);
+      LogInfo( ( "sensor(%d): Number of valid samples = %d", name, number_of_valid_samples ) );
   }
   else
   {
+      LogInfo( ( "sensor(%d) is Invalid", name ) );
       sensor_info->status = SENSOR_DATA_INVALID;
   }
 }
@@ -661,7 +667,7 @@ void vControllerCommunicationTask( void )
                  "controller_communication_task",   /* Text name for the task - only used for debugging. */
                  256,                               /* Size of stack (in words, not bytes) to allocate for the task. */
                  NULL,                              /* Task parameter - not used in this case. */
-                 tskIDLE_PRIORITY,                  /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
+                 tskIDLE_PRIORITY + 1,                  /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
                  NULL );                            /* Used to pass out a handle to the created task - not used in this case. */
 }
 /*-----------------------------------------------------------*/

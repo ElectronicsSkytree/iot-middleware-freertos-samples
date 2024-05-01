@@ -29,10 +29,6 @@
     if( ( x ) == 0 )                                                \
     {                                                               \
         taskDISABLE_INTERRUPTS();                                   \
-        vLoggingPrintf( "[FATAL] Error code: %d, Reset device, "    \
-            "hack to continue [%s:%d] \r\n",                        \
-            (int32_t)y, __func__, __LINE__ );                       \
-        vTaskDelay( pdMS_TO_TICKS( 2000U ) );                       \
         NVIC_SystemReset();                                         \
     }
 

@@ -334,12 +334,12 @@ static void prvHandleCommand( AzureIoTHubClientCommandRequest_t * pxMessage, voi
     if(strncmp( ( const char* )pxMessage->pucCommandName, METHOD_LOCK, strlen( METHOD_LOCK ) ) == 0 )
     {
         // @todo this does not work
-        // send_lock_status();
+        send_lock_status();
     }
     else if( strncmp( ( const char* )pxMessage->pucCommandName, METHOD_UNLOCK, strlen( METHOD_LOCK ) ) == 0 )
     {
         // @todo this does not work
-        // send_unlock_status();
+        send_unlock_status();
     }
     else
     {
@@ -444,6 +444,8 @@ static void prvIoTTelemetryTask( void * pvParameters )
     AzureIoTResult_t xResult;
     uint32_t ulScratchBufferLength = 0U;
 
+    configPRINTF( ( "---------IoT telemetry Task---------\r\n" ) );
+
 #ifdef TESTING_IN_SINGLE_TASK
     uint8_t count = 10;
 #endif
@@ -471,10 +473,10 @@ static void prvIoTTelemetryTask( void * pvParameters )
     while(1) {
 #ifndef TESTING_IN_SINGLE_TASK
         // Wait for the connection
-        EventBits_t bits = xEventGroupWaitBits(xConnectionEventGroup, PROPERTIES_RECEIVED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        EventBits_t bits = xEventGroupWaitBits(xConnectionEventGroup, CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
         // Check if the PROPERTIES_RECEIVED_BIT is set
-        if( bits & PROPERTIES_RECEIVED_BIT && bits & CONNECTED_BIT )
+        if( bits & CONNECTED_BIT )
 #endif
         {
             memset(ucScratchBuffer, '\0', sizeof (ucScratchBuffer) );
@@ -504,21 +506,44 @@ static void prvIoTTelemetryTask( void * pvParameters )
 #else
     while(1)
     {
+        LogInfo( ( "Telemetry collection:---------" ) );
+
         // Wait until the connection is established
         while (1) {
             // Wait for the connection event to be set
-            EventBits_t bits = xEventGroupWaitBits(xConnectionEventGroup, PROPERTIES_RECEIVED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+            EventBits_t bits = xEventGroupWaitBits(xConnectionEventGroup, CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
             // Check if the PROPERTIES_RECEIVED_BIT is set
-            if( bits & PROPERTIES_RECEIVED_BIT && bits & CONNECTED_BIT ) {
+            if( bits & CONNECTED_BIT ) {
+                LogInfo( ( "Telemetry collection, right state:---------" ) );
                 break;
             }
         }
 #endif
+
+        /**
+         * @todo doing the process loop in telemetry task till we figure out the task management issue
+        */
+        {
+            LogInfo( ( "Attempt to receive publish message from IoT Hub.\r\n" ) );
+            xResult = AzureIoTHubClient_ProcessLoop( &xAzureIoTHubClient, iotPROCESS_LOOP_TIMEOUT_MS );
+            EventBits_t bits = xEventGroupGetBits(xConnectionEventGroup);
+            if( xResult != eAzureIoTSuccess && bits & DISCONNECTED_BIT )
+            {
+                LogWarn( ( "Process loop failed, do nothing as already in disconnected state\r\n" ) );
+            }
+            else if( xResult != eAzureIoTSuccess )
+            {
+                configASSERT( xResult == eAzureIoTSuccess, xResult );
+            }
+        }
+
+        LogInfo( ( "Telemetry Skid data collection:---------" ) );
         // Read CCU sensor data
         SKID_iot_status_t skid_data = get_skid_status(xSkidLastState);
 
         // Read Units sensor data
+        LogInfo( ( "Telemetry Unit data collection:---------" ) );
         UNIT_iot_status_t unit_data = get_unit_status(xUnitLastState);
 
         // @todo error handling till we jump to new code
@@ -557,11 +582,12 @@ static void prvIoTTelemetryTask( void * pvParameters )
         // @todo We are sending single unit data, ok for now till we re-work on this
         memset(ucScratchBuffer, '\0', sizeof (ucScratchBuffer) );
         ulScratchBufferLength = CreateTelemetry( skid_data, unit_data, ucScratchBuffer, sizeof( ucScratchBuffer ) );
-        LogInfo( ( "ucScratchBuffer = %s and ulScratchBufferLength =%d\r\n", ucScratchBuffer, ulScratchBufferLength ) );
-
+        LogInfo( ("AzureIoTHubClient_SendTelemetry----") );
         xResult = AzureIoTHubClient_SendTelemetry( &xAzureIoTHubClient, ucScratchBuffer, ulScratchBufferLength,
                                                    &xPropertyBag, eAzureIoTHubMessageQoS1, NULL );
+        LogInfo( ("AzureIoTHubClient_SendTelemetry result:%s", xResult == eAzureIoTSuccess ? "Success" : "Failure") );
         configASSERT( xResult == eAzureIoTSuccess, xResult );
+        LogInfo( ( "Telemetry buffer length = %d and msg = %s\r\n", ulScratchBufferLength, ucScratchBuffer ) );
 
 #ifdef TESTING_IN_SINGLE_TASK
         count--;
@@ -776,9 +802,14 @@ static void prvIoTBackendConnectionTask( void * pvParameters )
         // Set the CONNECTED_BIT so that other tasks continue their work
         xEventGroupSetBits(xConnectionEventGroup, CONNECTED_BIT);
         xEventGroupClearBits(xConnectionEventGroup, DISCONNECTED_BIT);
+        xEventGroupClearBits(xConnectionEventGroup, PROPERTIES_RECEIVED_BIT);
 
         LogInfo( ( "Connection task will reconnect after (%d minutes) .... \r\n\r\n", iotDELAY_RECONNECTION_AFTER / 60000 ) );
         vTaskDelay( iotDELAY_RECONNECTION_AFTER );
+
+        // Just for survival for now, anyway we are moving to ethernet board.. test the hell out of it in that board
+        LogInfo( ( "Restarting after (%d minutes) .... \r\n\r\n", iotDELAY_RECONNECTION_AFTER / 60000 ) );
+        NVIC_SystemReset();
 
         // Unsubscribe before setting bits
         prvUnsubscribeCloudStuff();
@@ -1004,7 +1035,7 @@ void vIoTBackendConnectionTask( void )
                  "IoT_backend_connection_task",     /* Text name for the task - only used for debugging. */
                  1024U,                             /* Size of stack (in words, not bytes) to allocate for the task. */
                  NULL,                              /* Task parameter - not used in this case. */
-                 tskIDLE_PRIORITY,                  /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
+                 tskIDLE_PRIORITY + 1,                  /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
                  NULL );                            /* Used to pass out a handle to the created task - not used in this case. */
 }
 /*-----------------------------------------------------------*/
@@ -1020,13 +1051,13 @@ void vIoTBackendConnectionTask( void )
  */
 void vIoTTelemetryTask( void )
 {
-    configPRINTF( ( "---------IoT telemetry Task---------\r\n" ) );
+    // configPRINTF( ( "---------IoT telemetry Task---------\r\n" ) );
 
     xTaskCreate( prvIoTTelemetryTask,               /* Function that implements the task. */
                  "IoT_telemetry_task",              /* Text name for the task - only used for debugging. */
                  config_STACKSIZE,                  /* Size of stack (in words, not bytes) to allocate for the task. */
                  NULL,                              /* Task parameter - not used in this case. */
-                 tskIDLE_PRIORITY,                  /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
+                 tskIDLE_PRIORITY + 1,                  /* Task priority, must be between 0 and configMAX_PRIORITIES - 1. */
                  NULL );                            /* Used to pass out a handle to the created task - not used in this case. */
 }
 /*-----------------------------------------------------------*/
