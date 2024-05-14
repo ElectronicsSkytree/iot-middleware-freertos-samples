@@ -21,9 +21,9 @@
 // #define OFC_SETUP 1
 
 // Pilots
-#define WUR_SETUP 1
+// #define WUR_SETUP 1
 // #define GROWY_SETUP 1
-// #define KOPPERT_CRESS_SETUP 1
+#define KOPPERT_CRESS_SETUP 1
 // #define FIELDLESS_SETUP 1
 
 /**************************************************/
