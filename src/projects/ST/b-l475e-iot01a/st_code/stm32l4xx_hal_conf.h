@@ -54,7 +54,7 @@
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
 /* #define HAL_IRDA_MODULE_ENABLED */
-/* #define HAL_IWDG_MODULE_ENABLED */
+#define HAL_IWDG_MODULE_ENABLED
 /* #define HAL_LCD_MODULE_ENABLED */
 /* #define HAL_LPTIM_MODULE_ENABLED */
 /* #define HAL_OPAMP_MODULE_ENABLED */
@@ -157,6 +157,18 @@
 #if !defined  (EXTERNAL_SAI2_CLOCK_VALUE)
   #define EXTERNAL_SAI2_CLOCK_VALUE    48000U /*!< Value of the SAI2 External clock source in Hz*/
 #endif /* EXTERNAL_SAI2_CLOCK_VALUE */
+
+/**
+  * @brief Internal Low Speed oscillator (LSI) value
+  *        This value is used by the IWDG HAL module to compute the IWDG clock source 
+  *        frequency. 
+  * 
+  *        Added by Mostafa for IWDG test
+  */
+#if !defined(LSI_VALUE)
+  #define LSI_VALUE   CSI_VALUE
+#endif /* LSI_VALUE */
+
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
    ===  you can define the HSE value in your toolchain compiler preprocessor. */

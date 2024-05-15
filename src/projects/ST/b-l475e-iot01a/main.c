@@ -13,6 +13,7 @@
 #include "security_wrapper.h"
 #include "uart_wrapper.h"
 #include "log_utility.h"
+#include "watchdog_wrapper.h"
 
 /* HAL includes */
 #include "stm32l475e_iot01.h"
@@ -73,6 +74,10 @@ static void prvMiscInitialization( void )
     /* UART console init. */
     ConsoleUARTInit();
 
+    // WD related initialization
+    MX_IWDG_Init();
+    __HAL_IWDG_START(&hiwdg);
+
     /* Task to start communicating with the controller, such as a controllino
      * MEGA. Doing before WiFi so that we can start receiving data immediately. */
     vControllerCommunicationTask();
@@ -119,6 +124,8 @@ void vApplicationDaemonTaskStartupHook( void )
     xSemaphoreGive( xWifiSemaphoreHandle );
 
     StartTimeSync();
+
+    
 
     /* Starting IoT related tasks here as by now network is up. */
     configPRINTF( ( "---------STARTING IoT Tasks---------\r\n" ) );

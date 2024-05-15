@@ -3,6 +3,7 @@
 /* Local includes */
 #include "controller_data.h"
 #include "config.h"
+#include "watchdog_wrapper.h"
 
 /* Standard includes. */
 #include <memory.h>
@@ -178,6 +179,7 @@ static void prvControllerCommunicationTask( void* arg )
     while( 1 )
     {
         read_incoming_system_data();
+        __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
     }
 }
 /*-----------------------------------------------------------*/

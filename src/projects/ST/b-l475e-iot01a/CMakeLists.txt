@@ -29,6 +29,7 @@ set(PROJECT_SOURCES
     driver_wrappers/security_wrapper.c
     driver_wrappers/time_wrapper.c
     driver_wrappers/uart_wrapper.c
+    driver_wrappers/watchdog_wrapper.c
     controller_communication/uart_api.c
     controller_communication/gui_comm_api.c
     controller_communication/controller_data.c)
@@ -64,6 +65,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     HAL::STM32::L4::CORTEX
     HAL::STM32::L4::RNG
     HAL::STM32::L4::TIM
+    HAL::STM32::L4::IWDG
     HAL::STM32::L4::TIMEx
     CMSIS::STM32::L475xx
     BSP::STM32::STM32L475E_IOT01
